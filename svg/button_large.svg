@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"> 
+
+<svg xml:space="default" width="166.5" height="98.5">
+<defs id="defs">
+    <linearGradient
+	x1="0%" y1="0%" x2="0%" y2="100%"
+       id="linearGradient">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="start" />
+      <stop
+         style="stop-color:#e8e1b9;stop-opacity:1;"
+         offset="1"
+         id="stop" />
+    </linearGradient>
+</defs>
+
+  <rect x="2.5" y="2.5" 
+       style="display:inline;fill:#ffffff;fill-opacity:1;stroke:#0f2f4b;stroke-width:5;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3035"
+       width="161.5"
+       height="93.5"
+       ry="45" />
+</svg>

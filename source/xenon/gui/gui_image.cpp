@@ -67,15 +67,15 @@ GuiImage::GuiImage(struct XenosSurface * img, int w, int h) {
 }
 
 GuiImage::GuiImage(int w, int h, GXColor c) {
-	image = Xe_CreateTexture(g_pVideoDevice, w, h, 0, (XE_FMT_8888 | XE_FMT_ARGB), 0);
+	image = Xe_CreateTexture(g_pVideoDevice, w, h, 1, (XE_FMT_8888 | XE_FMT_ARGB), 0);
 	width = w;
 	height = h;
 
 	u8 * buf = (u8*) Xe_Surface_LockRect(g_pVideoDevice, image, 0, 0, 0, 0, XE_LOCK_WRITE);
 
 	int x, y;
-	for (y = 0; y < image->hpitch; y++) {
-		for (x = 0; x < image->wpitch/4; x++) {
+	for (y = 0; y < image->height; y++) {
+		for (x = 0; x < image->width; x++) {
 			*buf++ = c.a;
 			*buf++ = c.r;
 			*buf++ = c.g;
@@ -84,35 +84,6 @@ GuiImage::GuiImage(int w, int h, GXColor c) {
 	}
 
 	Xe_Surface_Unlock(g_pVideoDevice, image);
-
-	//image = (u8 *) memalign(32, w * h << 2);
-	//    image = Xe_CreateTexture(g_pVideoDevice,w,h,0,(XE_FMT_8888|XE_FMT_ARGB),0);
-	//    width = w;
-	//    height = h;
-	//    imageangle = 0;
-	//    tile = -1;
-	//    stripe = 0;
-	//    imgType = IMAGE_COLOR;
-	//    
-	//    if (!image)
-	//        return;
-	//
-	//    buf = (u8*)Xe_Surface_LockRect(g_pVideoDevice,image,0,0,0,0,XE_LOCK_WRITE);
-	//
-	//    int x,y;
-	//    for (y = 0; y < height; y++) {
-	//        for (x = 0; x < width; x++) {
-	//            
-	//            buf[0] = c.a;
-	//            buf[1] = c.r;
-	//            buf[2] = c.g;
-	//            buf[3] = c.b;
-	//            buf += 4;
-	//            
-	//        }
-	//    }
-	//    
-	//    Xe_Surface_Unlock(g_pVideoDevice,image);
 }
 
 /**

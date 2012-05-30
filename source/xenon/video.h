@@ -42,6 +42,8 @@ typedef union {
 
 extern struct XenosDevice * g_pVideoDevice;
 
+extern XenosSurface *  get_snes_surface();
+
 void InitVideo();
 void StopGX();
 void ResetVideo_Menu();

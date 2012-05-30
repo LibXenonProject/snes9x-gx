@@ -19,7 +19,7 @@ TARGET		:=	snes9xgx-xenon
 TARGETDIR   :=  executables
 BUILD		:=	build_xenon
 SOURCES		:=	source/snes9x source/snes9x/apu \
-				source/xenon source/images source/sounds source/fonts source/lang \
+				source/xenon source/xenon/images source/sounds source/fonts source/lang \
 				source/xenon/gui source/utils source/utils/sz source/utils/unzip \
 				
 INCLUDES	:=	source/xenon source/snes9x

@@ -265,11 +265,11 @@ InitVideo() {
 
         XenosSurface * fb = Xe_GetFramebufferSurface(g_pVideoDevice);
 
-        // screenheight = ((float)fb->height)*(720.f/(float)fb->height);
-        //    screenwidth = ((float)fb->width)*(1280.f/(float)fb->width);
+        screenheight = ((float)fb->height)*(720.f/(float)fb->height);
+        screenwidth = ((float)fb->width)*(1280.f/(float)fb->width);
 
-        screenheight = ((float) fb->height)*(480.f / (float) fb->height);
-        screenwidth = ((float) fb->width)*(640.f / (float) fb->width);
+//        screenheight = ((float) fb->height)*(480.f / (float) fb->height);
+//        screenwidth = ((float) fb->width)*(640.f / (float) fb->width);
 
         //    screenheight = 480;
         //    screenwidth = 640;
@@ -315,13 +315,15 @@ InitVideo() {
         Xe_InvalidateState(g_pVideoDevice);
 
         // Create snes surface
-        g_SnesSurface = Xe_CreateTexture(g_pVideoDevice, MAX_SNES_WIDTH, MAX_SNES_HEIGHT, 1, XE_FMT_565 | XE_FMT_16BE, 0);
-
+        g_SnesSurface = Xe_CreateTexture(g_pVideoDevice, MAX_SNES_WIDTH, MAX_SNES_HEIGHT, 1, XE_FMT_565 | XE_FMT_16BE, 0); 
+      
         g_SnesSurface->u_addressing = XE_TEXADDR_WRAP;
         g_SnesSurface->v_addressing = XE_TEXADDR_WRAP;
 
         GFX.Screen = (uint16*) g_SnesSurface->base;
         GFX.Pitch = g_SnesSurface->wpitch;
+        
+        memset(g_SnesSurface->base,0,g_SnesSurface->wpitch*g_SnesSurface->hpitch);
 
         ResetVideo_Menu();
 }
@@ -417,18 +419,8 @@ void UpdatesMatrices(f32 xpos, f32 ypos, f32 width, f32 height, f32 degrees, f32
 void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, XenosSurface * data,
         f32 degrees, f32 scaleX, f32 scaleY, u8 alpha) {
 
-        if (scaleX != 1)
-                printf("ScaleX = %f\r\n", scaleX);
-
-
-        if (scaleY != 1)
-                printf("scaleY = %f\r\n", scaleY);
-
         if (data == NULL)
                 return;
-
-        //    width >>= 1;
-        //    height >>= 1;
 
         float x, y, w, h;
 
@@ -440,17 +432,8 @@ void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, XenosSurface * data
         x = (x / ((float) screenwidth / 2.f)) - 1.f; // 1280/2
         y = (y / ((float) screenheight / 2.f)) - 1.f; // 720/2
 
-        //y = -y;
-
         w = (float) w / ((float) screenwidth);
         h = (float) h / ((float) screenheight);
-
-
-        //    printf("x = %f\r\n", x);
-        //    printf("y = %f\r\n", y);
-        //    printf("w = %f\r\n", w);
-        //    printf("h = %f\r\n", h);
-        //    printf("\r\n");
 
         XeColor color;
 
@@ -593,8 +576,8 @@ static void DrawSnes(XenosSurface * data) {
         w = (float) screenwidth * scale;
         h = (float) screenheight;
 
-        x = ((float) screenwidth - w) / 2.0f;
-        y = (float) 0;
+        x = ( ((float) screenwidth - w) / 2.0f)+  GCSettings.xshift;
+        y = (float)-GCSettings.yshift;
 
         x = (x / ((float) screenwidth / 2.f)) - 1.f; // 1280/2
         y = (y / ((float) screenheight / 2.f)) - 1.f; // 720/2
@@ -614,7 +597,7 @@ static void DrawSnes(XenosSurface * data) {
         Xe_VB_Unlock(g_pVideoDevice, vb);
         
         // Update matrices
-        UpdatesMatrices(x, y, w, h, 0, 1, 1);
+        UpdatesMatrices(x, y, w, h, 0, GCSettings.zoomHor, GCSettings.zoomVert);
 
         // Begin draw
         Xe_InvalidateState(g_pVideoDevice);
@@ -643,12 +626,21 @@ static void DrawSnes(XenosSurface * data) {
         Xe_Sync(g_pVideoDevice);
 }
 
+XenosSurface *  get_snes_surface(){
+        return g_SnesSurface;
+}
+
 void update_video(int width, int height) {
 
         g_SnesSurface->width = width;
         g_SnesSurface->height = height;
         //  Menu_DrawImg(0, 0, screenwidth, screenheight, g_SnesSurface, 0, 1, 1, 0xFF);
         DrawSnes(g_SnesSurface);
+        
+        if(GCSettings.FilterMethod==1)
+                g_SnesSurface->use_filtering = 1;
+        else
+                g_SnesSurface->use_filtering = 0;
 
         // Display Menu ?
         if (ScreenshotRequested) {

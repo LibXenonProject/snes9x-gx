@@ -405,6 +405,9 @@ void FreeTypeGX::loadGlyphData(FT_Bitmap *bmp, ftgxCharData *charData) {
                 }
         }
 
+        // remove filtering
+        charData->glyphDataTexture->use_filtering = 0;
+        
         Xe_Surface_Unlock(g_pVideoDevice, charData->glyphDataTexture);
 }
 

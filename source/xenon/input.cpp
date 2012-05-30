@@ -674,6 +674,7 @@ u32 btnmap[4][4][12]; // button mapping
 void ResetControls(int consoleCtrl, int wiiCtrl) {
         int i;
         /*** Gamecube controller Padmap ***/
+#if 0
         if (consoleCtrl == -1 || (consoleCtrl == CTRL_PAD && wiiCtrl == CTRLR_GCPAD)) {
                 i = 0;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_A;
@@ -689,7 +690,23 @@ void ResetControls(int consoleCtrl, int wiiCtrl) {
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_LEFT;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_RIGHT;
         }
-
+#else
+         if (consoleCtrl == -1 || (consoleCtrl == CTRL_PAD && wiiCtrl == CTRLR_GCPAD)) {
+                i = 0;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_B;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_A;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_X;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_Y;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_TRIGGER_L;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_TRIGGER_R;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_START;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_BACK;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_UP;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_DOWN;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_LEFT;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_RIGHT;
+        }
+#endif
         /*** Wiimote Padmap ***/
         if (consoleCtrl == -1 || (consoleCtrl == CTRL_PAD && wiiCtrl == CTRLR_WIIMOTE)) {
                 i = 0;

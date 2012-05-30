@@ -104,6 +104,8 @@ extern const u8		icon_settings_gamecube_png[];
 extern const u32	icon_settings_gamecube_png_size;
 extern const u8		icon_settings_nunchuk_png[];
 extern const u32	icon_settings_nunchuk_png_size;
+extern const u8 icon_settings_xbox_pad_png[];
+extern const u32 icon_settings_xbox_pad_png_size;
 
 extern const u8		icon_settings_snescontroller_png[];
 extern const u32	icon_settings_snescontroller_png_size;
