@@ -1,0 +1,9 @@
+*.d
+*.o
+*.a
+nbproject
+.svn
+*.elf*
+*~
+build_xenon
+
