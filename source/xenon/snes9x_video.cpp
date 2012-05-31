@@ -47,16 +47,10 @@ typedef struct {
 
 static struct XenosVertexBuffer *snes_vb = NULL;
 static struct XenosSurface * g_SnesSurface = NULL;
-static struct XenosSurface * g_SnesSurfaceShadow = NULL;
 
 static int selected_snes_shader = 0;
 static int nb_snes_shaders = 0;
 static SnesShader SnesShaders[MAX_SHADER];
-
-static int unsigned int video_lock = 0;
-
-
-static void video_thread();
 
 static void CreateVbSnes(float x, float y, float w, float h, uint32_t color, SnesVerticeFormats * Rect) {
         Rect[0].x = x;
@@ -131,12 +125,11 @@ void initSnesVideo() {
 
         // Create snes surface
         g_SnesSurface = Xe_CreateTexture(g_pVideoDevice, MAX_SNES_WIDTH, MAX_SNES_HEIGHT, 1, XE_FMT_565 | XE_FMT_16BE, 0);
-        g_SnesSurfaceShadow = Xe_CreateTexture(g_pVideoDevice, MAX_SNES_WIDTH, MAX_SNES_HEIGHT, 1, XE_FMT_565 | XE_FMT_16BE, 0);
 
         g_SnesSurface->u_addressing = XE_TEXADDR_WRAP;
         g_SnesSurface->v_addressing = XE_TEXADDR_WRAP;
 
-        GFX.Screen = (uint16*) g_SnesSurfaceShadow->base;
+        GFX.Screen = (uint16*) g_SnesSurface->base;
         GFX.Pitch = g_SnesSurface->wpitch;
 
         memset(g_SnesSurface->base, 0, g_SnesSurface->wpitch * g_SnesSurface->hpitch);
@@ -150,7 +143,7 @@ static int detect_changes(int w, int h) {
         static int yshift = -2000;
         static float zoomVert = -2000;
         static float zoomHor = -2000;
-        
+
         int changed = 0;
 
         if (w != old_width) {
@@ -161,41 +154,41 @@ static int detect_changes(int w, int h) {
                 changed = 1;
                 goto end;
         }
-        
+
         if (widescreen != GCSettings.widescreen) {
                 changed = 1;
                 goto end;
         }
-        
+
         if (xshift != GCSettings.xshift) {
                 changed = 1;
                 goto end;
         }
-        
-         if (yshift != GCSettings.yshift) {
-                changed = 1;
-                goto end;
-        }
-        
-         if (zoomVert != GCSettings.zoomVert) {
-                changed = 1;
-                goto end;
-        }
-        
-         if (zoomHor != GCSettings.zoomHor) {
+
+        if (yshift != GCSettings.yshift) {
                 changed = 1;
                 goto end;
         }
 
-// save values for next loop        
+        if (zoomVert != GCSettings.zoomVert) {
+                changed = 1;
+                goto end;
+        }
+
+        if (zoomHor != GCSettings.zoomHor) {
+                changed = 1;
+                goto end;
+        }
+
+        // save values for next loop        
 end:
         old_width = w;
         old_height = h;
         widescreen = GCSettings.widescreen;
         xshift = GCSettings.xshift;
         yshift = GCSettings.yshift;
-        zoomHor= GCSettings.zoomHor;
-        zoomVert= GCSettings.zoomVert;
+        zoomHor = GCSettings.zoomHor;
+        zoomVert = GCSettings.zoomVert;
 
         return changed;
 }
@@ -205,7 +198,8 @@ static void DrawSnes(XenosSurface * data) {
                 return;
 
         // detect if something changed
-        if(detect_changes(g_SnesSurface->width, g_SnesSurface->height)){
+        // if(detect_changes(g_SnesSurface->width, g_SnesSurface->height)){
+        if (1) {
                 // work on vb
                 float x, y, w, h;
                 float scale = 1.f;
@@ -214,16 +208,64 @@ static void DrawSnes(XenosSurface * data) {
                         scale = 3.f / 4.f;
                 }
 
-                w = (scale * 2.f ) * GCSettings.zoomHor;
+                w = (scale * 2.f) * GCSettings.zoomHor;
                 h = 2.f * GCSettings.zoomVert;
 
-                x = ( GCSettings.xshift / (float) screenwidth) - 1.f;
-                y = (- GCSettings.yshift / (float) screenheight) - 1.f;
+                x = (GCSettings.xshift / (float) screenwidth) - 1.f;
+                y = (-GCSettings.yshift / (float) screenheight) - 1.f;
 
                 // Update Vb
                 SnesVerticeFormats* Rect = (SnesVerticeFormats*) Xe_VB_Lock(g_pVideoDevice, snes_vb, 0, 4096, XE_LOCK_WRITE);
                 {
-                        CreateVbSnes(w, h, x, y, 0xFFFFFFFF, Rect);
+                        //                        CreateVbSnes(w, h, x, y, 0xFFFFFFFF, Rect);
+
+                        Rect[0].x = x;
+                        Rect[0].y = y + h;
+                        Rect[0].u = 0;
+                        Rect[0].v = 0;
+                        Rect[0].color = 0;
+
+                        // bottom left
+                        Rect[1].x = x;
+                        Rect[1].y = y;
+                        Rect[1].u = 0;
+                        Rect[1].v = 1;
+                        Rect[1].color = 0;
+
+                        // top right
+                        Rect[2].x = x + w;
+                        Rect[2].y = y + h;
+                        Rect[2].u = 1;
+                        Rect[2].v = 0;
+                        Rect[2].color = 0;
+
+                        // top right
+                        Rect[3].x = x + w;
+                        Rect[3].y = y + h;
+                        Rect[3].u = 1;
+                        ;
+                        Rect[3].v = 0;
+                        Rect[3].color = 0;
+
+                        // bottom left
+                        Rect[4].x = x;
+                        Rect[4].y = y;
+                        Rect[4].u = 0;
+                        Rect[4].v = 1;
+                        Rect[4].color = 0;
+
+                        // bottom right
+                        Rect[5].x = x + w;
+                        Rect[5].y = y;
+                        Rect[5].u = 1;
+                        Rect[5].v = 1;
+                        Rect[5].color = 0;
+
+                        int i = 0;
+                        for (i = 0; i < 6; i++) {
+                                Rect[i].z = 0.0;
+                                Rect[i].w = 1.0;
+                        }
                 }
                 Xe_VB_Unlock(g_pVideoDevice, snes_vb);
         }
@@ -233,8 +275,6 @@ static void DrawSnes(XenosSurface * data) {
 
         Xe_SetCullMode(g_pVideoDevice, XE_CULL_NONE);
         Xe_SetClearColor(g_pVideoDevice, 0);
-
-        Xe_SetFillMode(g_pVideoDevice, XE_FILL_WIREFRAME, XE_FILL_WIREFRAME);
 
         // Refresh  texture cache
         Xe_Surface_LockRect(g_pVideoDevice, data, 0, 0, 0, 0, XE_LOCK_WRITE);
@@ -259,10 +299,12 @@ static void DrawSnes(XenosSurface * data) {
         // while (!Xe_IsVBlank(g_pVideoDevice));
         Xe_Sync(g_pVideoDevice);
 }
+#if 1
 
 XenosSurface * get_snes_surface() {
         return g_SnesSurface;
 }
+#endif
 
 static void ShowFPS(void) {
         static unsigned long lastTick = 0;
@@ -280,28 +322,12 @@ static void ShowFPS(void) {
 }
 
 static int frame = 0;
-
-static void video_thread(){
-        while(){                
-                lock(&video_lock);
-                if(frame == 1){
-                        // copy
-                        memcpy(g_SnesSurface->base, g_SnesSurfaceShadow->base, g_SnesSurface->wpitch * g_SnesSurface->hpitch);
-                }
-                frame = 0;
-                unlock(&video_lock);
-        }
-}
+#if 1
 
 void update_video(int width, int height) {
-        //lock(&video_lock);
-        
+
         g_SnesSurface->width = width;
         g_SnesSurface->height = height;
-        
-        //unlock(&video_lock);
-        
-        //  Menu_DrawImg(0, 0, screenwidth, screenheight, g_SnesSurface, 0, 1, 1, 0xFF);
 
         // move it to callback
         if (GCSettings.FilterMethod == 1)
@@ -325,3 +351,4 @@ void update_video(int width, int height) {
 
         ShowFPS();
 }
+#endif
