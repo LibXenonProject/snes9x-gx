@@ -56,6 +56,8 @@ void Menu_TD2(XenosSurface * surf, f32 texWidth, f32 texHeight, int16_t screenX,
 
 void update_video (int width, int height);
 
+void initSnesVideo();
+
 extern int screenheight;
 extern int screenwidth;
 extern u32 FrameTimer;
