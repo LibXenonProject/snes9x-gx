@@ -440,11 +440,11 @@ void GuiFileBrowser::Update(GuiTrigger * t)
 		}
 		else if(browser.pageIndex+FILE_PAGESIZE >= browser.numEntries)
 		{
-			position = 156;
+			position = 314;
 		}
 		else
 		{
-			position = 156 * (browser.pageIndex + FILE_PAGESIZE/2) / (float)browser.numEntries;
+			position = 314 * (browser.pageIndex + FILE_PAGESIZE/2) / (float)browser.numEntries;
 		}
 		scrollbarBoxBtn->SetPosition(0,position+36);
 	}

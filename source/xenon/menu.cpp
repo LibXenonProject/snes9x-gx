@@ -285,7 +285,7 @@ static void * UGUI() {
 static void *
 UpdateGUI(void *arg) {
         int i;
-        while (1) {
+        while (exitThreads==0) {
                 if (guiHalt == false) {
                         lock(&_gui_lock);
 
@@ -446,7 +446,7 @@ ProgressWindow(char *title, char *msg) {
 }
 
 static void * ProgressThread(void *arg) {
-        while (1) {
+        while (exitThreads==0) {
                 if (showProgress) {
                         lock(&_progress_lock);
                         ProgressWindow(progressTitle, progressMsg);

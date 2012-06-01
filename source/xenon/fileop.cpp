@@ -104,16 +104,16 @@ HaltParseThread() {
 static void *
 parsecallback(void *arg) {
         int parse = 0;
-        while (1) {
+        while (exitThreads==0) {
 
                 lock(&_file_lock);
                 if (_parse_thread_suspended == 0) {
-                        usleep(THREAD_SLEEP);
-                        ParseDirEntries();
+			while(ParseDirEntries())
+				usleep(THREAD_SLEEP);
                 }
+                _parse_thread_suspended = 1;
                 unlock(&_file_lock);
 
-                _parse_thread_suspended = 1;
 
                 //while(ParseDirEntries())
                 //	usleep(THREAD_SLEEP);
@@ -130,7 +130,7 @@ parsecallback(void *arg) {
  ***************************************************************************/
 void
 InitDeviceThread() {
-        xenon_run_thread_task(3, xenon_thread_stack + (3 * 0x10000) - 0x100, parsecallback);
+        //xenon_run_thread_task(3, xenon_thread_stack + (3 * 0x10000) - 0x100, parsecallback);
 }
 
 /****************************************************************************
@@ -450,8 +450,11 @@ ParseDirectory(bool waitParse, bool filter) {
         }
 
         parseHalt = false;
-        ParseDirEntries(); // index first 20 entries
+        //ParseDirEntries(); // index first 20 entries
+		
+	while(ParseDirEntries());
 
+#if 0		
         //LWP_ResumeThread(parsethread); // index remaining entries
 
         lock(&_file_lock);
@@ -477,7 +480,7 @@ ParseDirectory(bool waitParse, bool filter) {
                 }
                 CancelAction();
         }
-
+#endif
         return browser.numEntries;
 }
 

@@ -123,4 +123,5 @@ extern char appPath[];
 extern char loadedFile[];
 extern FreeTypeGX *fontSystem[];
 
+extern int exitThreads;
 #endif

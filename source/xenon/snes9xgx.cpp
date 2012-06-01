@@ -53,6 +53,7 @@ int ExitRequested = 0;
 char appPath[1024] = { 0 };
 char loadedFile[1024] = { 0 };
 static int currentMode;
+int exitThreads = 0;
 
 extern "C" {
 extern void __exception_setreload(int t);
@@ -83,6 +84,7 @@ void ExitApp()
 
 	ExitCleanup();
 
+	exitThreads = 1;
 	//if(ShutdownRequested)
                 exit(0);
 }
