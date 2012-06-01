@@ -3805,25 +3805,10 @@ MainMenu(int menu) {
         XenosSurface * snes_surface = get_snes_surface();
         gameScreenImg = new GuiImage(snes_surface, snes_surface->width, snes_surface->height);
 
-
         if (menu == MENU_GAME) {
                 gameScreenImg->SetAlpha(192);
                 gameScreenImg->ColorStripe(30);
-
-                if (GCSettings.render > 0 && !GCSettings.widescreen)
-                        gameScreenImg->SetScaleX((screenwidth / (float) MAX_SNES_WIDTH) *(MAX_SNES_WIDTH / (float) snes_surface->width));
-                else
-                        gameScreenImg->SetScaleX((screenwidth / (1.2f * (float) MAX_SNES_WIDTH) *(MAX_SNES_WIDTH / (float) snes_surface->width)));
-
-                gameScreenImg->SetScaleY(screenheight / (float) snes_surface->height);
-
-                //                mainWindow->Append(gameScreenImg);
         } else {
-
-                //                gameScreenImg = new GuiImage(screenwidth, screenheight, (GXColor) {
-                //                        175, 200, 215, 255
-                //                });
-
                 gameScreenImg->ColorStripe(10);
         }
 

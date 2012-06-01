@@ -23,6 +23,14 @@
 #include "snes9x.h"
 #include "gfx.h"
 
+struct ati_info {
+        uint32_t unknown1[4];
+        uint32_t base;
+        uint32_t unknown2[8];
+        uint32_t width;
+        uint32_t height;
+} __attribute__((__packed__));
+
 #define MAX_SHADER 10
 
 typedef unsigned int DWORD;
@@ -47,37 +55,11 @@ typedef struct {
 
 static struct XenosVertexBuffer *snes_vb = NULL;
 static struct XenosSurface * g_SnesSurface = NULL;
+static struct XenosSurface * g_SnesSurfaceShadow = NULL;
 
 static int selected_snes_shader = 0;
 static int nb_snes_shaders = 0;
 static SnesShader SnesShaders[MAX_SHADER];
-
-static void CreateVbSnes(float x, float y, float w, float h, uint32_t color, SnesVerticeFormats * Rect) {
-        Rect[0].x = x;
-        Rect[0].y = y + h;
-        Rect[0].u = 0.f;
-        Rect[0].v = 0.f;
-        Rect[0].color = color;
-
-        // bottom left
-        Rect[1].x = x;
-        Rect[1].y = y;
-        Rect[1].u = 0.f;
-        Rect[1].v = 1.f;
-        Rect[1].color = color;
-
-        // top right
-        Rect[2].x = x + w;
-        Rect[2].y = y + h;
-        Rect[2].u = 1.f;
-        Rect[2].v = 0.f;
-        Rect[2].color = color;
-
-        for (int i = 0; i < 3; i++) {
-                Rect[i].z = 0.0;
-                Rect[i].w = 1.0;
-        }
-}
 
 static void xbr_callback(void*) {
         // Disable filtering for xbr
@@ -123,8 +105,9 @@ void initSnesVideo() {
 
         snes_vb = Xe_CreateVertexBuffer(g_pVideoDevice, 4096);
 
-        // Create snes surface
+        // Create surfaces
         g_SnesSurface = Xe_CreateTexture(g_pVideoDevice, MAX_SNES_WIDTH, MAX_SNES_HEIGHT, 1, XE_FMT_565 | XE_FMT_16BE, 0);
+        g_SnesSurfaceShadow = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_ARGB | XE_FMT_8888, 0);
 
         g_SnesSurface->u_addressing = XE_TEXADDR_WRAP;
         g_SnesSurface->v_addressing = XE_TEXADDR_WRAP;
@@ -133,6 +116,7 @@ void initSnesVideo() {
         GFX.Pitch = g_SnesSurface->wpitch;
 
         memset(g_SnesSurface->base, 0, g_SnesSurface->wpitch * g_SnesSurface->hpitch);
+        memset(g_SnesSurfaceShadow->base, 0, g_SnesSurfaceShadow->wpitch * g_SnesSurfaceShadow->hpitch);
 }
 
 static int detect_changes(int w, int h) {
@@ -198,27 +182,26 @@ static void DrawSnes(XenosSurface * data) {
                 return;
 
         // detect if something changed
-        // if(detect_changes(g_SnesSurface->width, g_SnesSurface->height)){
-        if (1) {
+        if (detect_changes(g_SnesSurface->width, g_SnesSurface->height)) {
                 // work on vb
                 float x, y, w, h;
                 float scale = 1.f;
+                float xoffset = 0;
 
                 if (GCSettings.widescreen) {
                         scale = 3.f / 4.f;
+                        xoffset = 0.25f;
                 }
 
                 w = (scale * 2.f) * GCSettings.zoomHor;
                 h = 2.f * GCSettings.zoomVert;
 
-                x = (GCSettings.xshift / (float) screenwidth) - 1.f;
+                x = xoffset + (GCSettings.xshift / (float) screenwidth) - 1.f;
                 y = (-GCSettings.yshift / (float) screenheight) - 1.f;
 
                 // Update Vb
                 SnesVerticeFormats* Rect = (SnesVerticeFormats*) Xe_VB_Lock(g_pVideoDevice, snes_vb, 0, 4096, XE_LOCK_WRITE);
                 {
-                        //                        CreateVbSnes(w, h, x, y, 0xFFFFFFFF, Rect);
-
                         Rect[0].x = x;
                         Rect[0].y = y + h;
                         Rect[0].u = 0;
@@ -302,7 +285,7 @@ static void DrawSnes(XenosSurface * data) {
 #if 1
 
 XenosSurface * get_snes_surface() {
-        return g_SnesSurface;
+        return g_SnesSurfaceShadow;
 }
 #endif
 
@@ -339,6 +322,25 @@ void update_video(int width, int height) {
 
         // Display Menu ?
         if (ScreenshotRequested) {
+                // copy fb
+                struct ati_info *ai = (struct ati_info*) 0xec806100ULL;
+
+                int width = ai->width;
+                int height = ai->height;
+
+                uint32_t * dst = (uint32_t*) Xe_Surface_LockRect(g_pVideoDevice, g_SnesSurfaceShadow, 0, 0, 0, 0, XE_LOCK_WRITE);
+                volatile uint32_t *screen = (uint32_t*) (long) (ai->base | 0x80000000);
+
+                int y, x;
+                for (y = 0; y < height; ++y) {
+                        for (x = 0; x < width; ++x) {
+                                unsigned int base = ((((y & ~31) * width) + (x & ~31)*32) +
+                                        (((x & 3) + ((y & 1) << 2) + ((x & 28) << 1) + ((y & 30) << 5)) ^ ((y & 8) << 2)));
+                                dst[y * width + x] = 0xFF | __builtin_bswap32(screen[base] >> 8);
+                        }
+                }
+                Xe_Surface_Unlock(g_pVideoDevice, g_SnesSurfaceShadow);
+
                 if (GCSettings.render == 0) // we can't take a screenshot in Original mode
                 {
                         GCSettings.render = 2; // switch to unfiltered mode
