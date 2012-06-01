@@ -92,7 +92,7 @@ void S9xSyncSpeed ()
 
 	while (!S9xSyncSound())
 		usleep(10);
-
+#if 0
 	uint32 skipFrms = Settings.SkipFrames;
 
 	if (Settings.TurboMode)
@@ -127,7 +127,7 @@ void S9xSyncSpeed ()
 	}
 
 	prev = now;
-
+#endif
 	return;
 }
 

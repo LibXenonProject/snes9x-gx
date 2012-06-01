@@ -143,9 +143,8 @@ int main(int argc, char *argv[])
 			MainMenu(MENU_GAMESELECTION);
 		else
 			MainMenu(MENU_GAME);
-#ifdef HW_RVL
+
 		SelectFilterMethod();
-#endif
 		
 		ConfigRequested = 0;
 		ScreenshotRequested = 0;

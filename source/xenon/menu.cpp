@@ -3052,7 +3052,7 @@ static int MenuSettingsVideo() {
 
                         case 2:
                                 GCSettings.FilterMethod++;
-                                if (GCSettings.FilterMethod >= NUM_FILTERS)
+                                if (GCSettings.FilterMethod >= GetFilterNumber())
                                         GCSettings.FilterMethod = 0;
                                 break;
 
@@ -3093,9 +3093,9 @@ static int MenuSettingsVideo() {
                                 sprintf(options.value[1], "16:9 Correction");
                         else
                                 sprintf(options.value[1], "Default");
-#ifdef HW_RVL
+//#ifdef HW_RVL
                         sprintf(options.value[2], "%s", GetFilterName((RenderFilter) GCSettings.FilterMethod));
-#endif
+//#endif
                         sprintf(options.value[3], "%.2f%%, %.2f%%", GCSettings.zoomHor * 100, GCSettings.zoomVert * 100);
                         sprintf(options.value[4], "%d, %d", GCSettings.xshift, GCSettings.yshift);
                         sprintf(options.value[5], "%s", GCSettings.crosshair == 1 ? "On" : "Off");
