@@ -228,6 +228,7 @@ static void DrawSnes(XenosSurface * data) {
 		return;
 
 	while (!Xe_IsVBlank(g_pVideoDevice));
+	Xe_Sync(g_pVideoDevice);
 	
 	// detect if something changed
 	if (detect_changes(g_SnesSurface->width, g_SnesSurface->height)) {
@@ -321,7 +322,9 @@ static void DrawSnes(XenosSurface * data) {
 	// Display
 	Xe_Resolve(g_pVideoDevice);
 	// while (!Xe_IsVBlank(g_pVideoDevice));
-	Xe_Sync(g_pVideoDevice);
+	//Xe_Sync(g_pVideoDevice);
+	
+	Xe_Execute(g_pVideoDevice);
 }
 
 XenosSurface * get_snes_surface() {
