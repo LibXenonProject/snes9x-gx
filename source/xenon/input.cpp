@@ -695,8 +695,8 @@ void ResetControls(int consoleCtrl, int wiiCtrl) {
                 i = 0;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_B;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_A;
-                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_X;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_Y;
+                btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_X;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_TRIGGER_L;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_TRIGGER_R;
                 btnmap[CTRL_PAD][CTRLR_GCPAD][i++] = PAD_BUTTON_START;

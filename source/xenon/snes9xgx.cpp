@@ -24,6 +24,7 @@
 #include <diskio/ata.h>
 #include <usb/usbmain.h>
 #include <xenon_soc/xenon_power.h>
+#include <xenon_smc/xenon_smc.h>
 #include <debug.h>
 
 #include "snes9xgx.h"
@@ -85,8 +86,11 @@ void ExitApp()
 	ExitCleanup();
 
 	exitThreads = 1;
-	//if(ShutdownRequested)
+	
+	if(GCSettings.ExitAction==0)
                 exit(0);
+	else
+		xenon_smc_power_shutdown();
 }
 
 int main(int argc, char *argv[])

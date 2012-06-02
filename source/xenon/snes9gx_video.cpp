@@ -67,11 +67,11 @@ typedef struct {
 #include "shaders/2xBR-v3.5a.ps.h"
 #include "shaders/2xBR-v3.5a.vs.h"
 
-//#include "shaders/5xBR-v3.7b.ps.h"
-//#include "shaders/5xBR-v3.7b.vs.h"
-//
-//#include "shaders/5xBR-v3.7c.ps.h"
-//#include "shaders/5xBR-v3.7c.vs.h"
+#include "shaders/5xBR-v3.7b.ps.h"
+#include "shaders/5xBR-v3.7b.vs.h"
+
+#include "shaders/5xBR-v3.7c.ps.h"
+#include "shaders/5xBR-v3.7c.vs.h"
 
 //#include "shaders/5xBR-v3.7c_crt.ps.h"
 //#include "shaders/5xBR-v3.7c_crt.vs.h"
@@ -143,7 +143,10 @@ void initSnesVideo() {
 	loadShader("Normal", &vbf, PSSimple, VSSimple, default_callback);
 	//loadShader("Xbr 2x 3.5a", &vbf, PS2xBRa, VS2xBRa, no_filtering_callback); /// too slow ?
 	loadShader("Xbr 5x 3.7a", &vbf, PS5xBRa, VS5xBRa, no_filtering_callback);
-	loadShader("Scanlines", &vbf, PSScanline, VSScanline, no_filtering_callback);
+	loadShader("Xbr 5x 3.7b", &vbf, PS5xBRb, VS5xBRb, no_filtering_callback);
+	loadShader("Xbr 5x 3.7c", &vbf, PS5xBRc, VS5xBRc, no_filtering_callback);
+	
+	//loadShader("Scanlines", &vbf, PSScanline, VSScanline, no_filtering_callback);
 
 	snes_vb = Xe_CreateVertexBuffer(g_pVideoDevice, 4096);
 
@@ -227,26 +230,24 @@ static void DrawSnes(XenosSurface * data) {
 	if (data == NULL)
 		return;
 
-	while (!Xe_IsVBlank(g_pVideoDevice));
-	Xe_Sync(g_pVideoDevice);
+//	while (!Xe_IsVBlank(g_pVideoDevice));
+//	Xe_Sync(g_pVideoDevice);
 	
 	// detect if something changed
 	if (detect_changes(g_SnesSurface->width, g_SnesSurface->height)) {
 		// work on vb
 		float x, y, w, h;
 		float scale = 1.f;
-		float xoffset = 0;
 
 		if (GCSettings.widescreen) {
 			scale = 3.f / 4.f;
-			xoffset = 0.25f;
 		}
 
 		w = (scale * 2.f) * GCSettings.zoomHor;
 		h = 2.f * GCSettings.zoomVert;
 
-		x = xoffset + (GCSettings.xshift / (float) screenwidth) - 1.f;
-		y = (-GCSettings.yshift / (float) screenheight) - 1.f;
+		x = (GCSettings.xshift / (float) screenwidth) - (w/2.f);
+		y = (-GCSettings.yshift / (float) screenheight) - (h/2.f);
 
 		// Update Vb
 		SnesVerticeFormats* Rect = (SnesVerticeFormats*) Xe_VB_Lock(g_pVideoDevice, snes_vb, 0, 4096, XE_LOCK_WRITE);
@@ -305,26 +306,25 @@ static void DrawSnes(XenosSurface * data) {
 	Xe_Surface_LockRect(g_pVideoDevice, data, 0, 0, 0, 0, XE_LOCK_WRITE);
 	Xe_Surface_Unlock(g_pVideoDevice, data);
 
-	// Set Stream, shader, textures
-	Xe_SetTexture(g_pVideoDevice, 0, data);
+	// Set Stream, shader, textures	
 	Xe_SetShader(g_pVideoDevice, SHADER_TYPE_PIXEL, SnesShaders[selected_snes_shader].ps, 0);
 	Xe_SetShader(g_pVideoDevice, SHADER_TYPE_VERTEX, SnesShaders[selected_snes_shader].vs, 0);
 	Xe_SetStreamSource(g_pVideoDevice, 0, snes_vb, 0, sizeof (SnesVerticeFormats));
 
 	// use the callback related to selected shader
-	if (SnesShaders[selected_snes_shader].callback) {
-		SnesShaders[selected_snes_shader].callback(NULL);
-	}
+	SnesShaders[selected_snes_shader].callback(NULL);
+	
+	Xe_SetTexture(g_pVideoDevice, 0, data);
 
 	// Draw
 	Xe_DrawPrimitive(g_pVideoDevice, XE_PRIMTYPE_RECTLIST, 0, 1);
 
 	// Display
 	Xe_Resolve(g_pVideoDevice);
-	// while (!Xe_IsVBlank(g_pVideoDevice));
-	//Xe_Sync(g_pVideoDevice);
+	 while (!Xe_IsVBlank(g_pVideoDevice));
+	Xe_Sync(g_pVideoDevice);
 	
-	Xe_Execute(g_pVideoDevice);
+//	Xe_Execute(g_pVideoDevice);
 }
 
 XenosSurface * get_snes_surface() {
@@ -362,16 +362,17 @@ void update_video(int width, int height) {
 	shaderParameters.output_size.w = width;
 	shaderParameters.output_size.h = height;
 
-	// move it to callback
-	if (GCSettings.render == 1)
-		g_SnesSurface->use_filtering = 1;
-	else
+	 if (GCSettings.render == 0 || GCSettings.render == 2 || selected_snes_shader)
 		g_SnesSurface->use_filtering = 0;
+	 else
+		 g_SnesSurface->use_filtering = 1;
 
 	DrawSnes(g_SnesSurface);
 
 	// Display Menu ?
 	if (ScreenshotRequested) {
+//		Xe_Sync(g_pVideoDevice);
+		
 		// copy fb
 		struct ati_info *ai = (struct ati_info*) 0xec806100ULL;
 
@@ -391,14 +392,10 @@ void update_video(int width, int height) {
 		}
 		Xe_Surface_Unlock(g_pVideoDevice, g_SnesSurfaceShadow);
 
-		if (GCSettings.render == 0) // we can't take a screenshot in Original mode
-		{
-			GCSettings.render = 2; // switch to unfiltered mode
-		} else {
-			ScreenshotRequested = 0;
-			//TakeScreenshot();
-			ConfigRequested = 1;
-		}
+
+		ScreenshotRequested = 0;
+		//TakeScreenshot();
+		ConfigRequested = 1;
 	}
 
 	ShowFPS();
@@ -413,6 +410,9 @@ const char* GetFilterName(int filterID) {
 }
 
 void SelectFilterMethod() {
+	if (GCSettings.FilterMethod >= nb_snes_shaders) {
+		GCSettings.FilterMethod=nb_snes_shaders-1;
+	} 
 	selected_snes_shader = GCSettings.FilterMethod;
 }
 

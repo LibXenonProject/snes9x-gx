@@ -3608,9 +3608,9 @@ static int MenuSettingsMenu() {
 			if (GCSettings.ExitAction > 1)
 				GCSettings.ExitAction = 0;
 			if (GCSettings.ExitAction == 0)
-				sprintf(options.value[0], "Return to Loader");
+				sprintf(options.value[0], "Return to Xell");
 			else
-				sprintf(options.value[0], "Reboot");
+				sprintf(options.value[0], "Shutdown");
 
 			options.name[1][0] = 0; // Wiimote
 			options.name[2][0] = 0; // Music

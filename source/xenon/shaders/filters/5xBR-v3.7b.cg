@@ -36,7 +36,7 @@ float4 df(float4 A, float4 B)
 
 bool4 eq(float4 A, float4 B)
 {
-	return (df(A, B) < float4(15.0));
+	return (df(A, B) < float4(15.0,15.0,15.0,15.0));
 }
 
 
@@ -57,7 +57,6 @@ struct input
 
 struct out_vertex {
 	half4 position : POSITION;
-	half4 color    : COLOR;
 	float2 texCoord : TEXCOORD0;
 	half4 t1 : TEXCOORD1;
 };
@@ -66,7 +65,6 @@ struct out_vertex {
 out_vertex main_vertex
 (
 	half4 position	: POSITION,
-	half4 color	: COLOR,
 	float2 texCoord : TEXCOORD0,
 
    	uniform half4x4 modelViewProj,
@@ -76,7 +74,6 @@ out_vertex main_vertex
 	out_vertex OUT;
 
 	OUT.position = mul(modelViewProj, position);
-	OUT.color = color;
 
 	half2 ps = half2(1.0/IN.texture_size.x, 1.0/IN.texture_size.y);
 	half dx = ps.x;
