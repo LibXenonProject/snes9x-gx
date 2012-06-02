@@ -328,6 +328,8 @@ static void DrawSnes(XenosSurface * data) {
 }
 
 XenosSurface * get_snes_surface() {
+	Xe_Surface_LockRect(g_pVideoDevice, g_SnesSurfaceShadow, 0, 0, 0, 0, XE_LOCK_WRITE);
+	Xe_Surface_Unlock(g_pVideoDevice, g_SnesSurfaceShadow);
 	return g_SnesSurfaceShadow;
 }
 
