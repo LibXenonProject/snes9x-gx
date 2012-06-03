@@ -39,22 +39,31 @@ int req_samples = 512;
 
 static void audio_thread() {
 	while (exitThreads == 0) {
-		lock(&audio_lock);
-		S9xMixSamples(buffer, req_samples);
+		int sample_rate = 48000 * 2;
+		int samples_per_frame = Settings.PAL ? sample_rate / 50 : sample_rate / 60;
+		int samples_guard = 16384;
+		int req_samples = samples_per_frame;
 
-		for (int i = 0; i < req_samples * 2; i += 4)
-			*(int*) (buffer + i) = __builtin_bswap32(*(int*) (buffer + i));
+		if (xenon_sound_get_unplayed() < samples_guard) {
+			
+			lock(&audio_lock);
+			S9xMixSamples(buffer, req_samples);
+			unlock(&audio_lock);
 
-		xenon_sound_submit(buffer, req_samples * 2);			
-		unlock(&audio_lock);
+			for (int i = 0; i < req_samples * 2; i += 4)
+				*(int*) (buffer + i) = __builtin_bswap32(*(int*) (buffer + i));
+
+			xenon_sound_submit(buffer, req_samples * 2);
+		}
+		
 	}
 }
 
 void handle_sound(void *) {
-//	lock(&audio_lock);
-//	have_sound = 1;
-//	unlock(&audio_lock);
-	
+	//	lock(&audio_lock);
+	//	have_sound = 1;
+	//	unlock(&audio_lock);
+
 	//S9xFinalizeSamples();
 	S9xFinalizeSamples();
 
@@ -72,8 +81,7 @@ void handle_sound(void *) {
 	}
 }
 
-static void FinalizeSamplesCallback (void *data)
-{ 
+static void FinalizeSamplesCallback(void *data) {
 	lock(&audio_lock);
 	S9xFinalizeSamples();
 	unlock(&audio_lock);
@@ -84,9 +92,9 @@ static void FinalizeSamplesCallback (void *data)
  ***************************************************************************/
 void InitAudio() {
 	xenon_sound_init();
-	//xenon_run_thread_task(4, xenon_thread_stack + (4 * 0x10000) - 0x100, audio_thread);
-	S9xSetSamplesAvailableCallback(handle_sound, NULL);
-	//S9xSetSamplesAvailableCallback(FinalizeSamplesCallback, NULL);
+	xenon_run_thread_task(4, xenon_thread_stack + (4 * 0x10000) - 0x100, audio_thread);
+	//S9xSetSamplesAvailableCallback(handle_sound, NULL);
+	S9xSetSamplesAvailableCallback(FinalizeSamplesCallback, NULL);
 }
 
 /****************************************************************************

@@ -88,11 +88,12 @@ void S9xInitSync()
 
 void S9xSyncSpeed ()
 {
+#if 0
 	unsigned int timediffallowed = Settings.TurboMode ? 0 : Settings.FrameTime;
 
 	while (!S9xSyncSound())
 		usleep(10);
-#if 0
+
 	uint32 skipFrms = Settings.SkipFrames;
 
 	if (Settings.TurboMode)

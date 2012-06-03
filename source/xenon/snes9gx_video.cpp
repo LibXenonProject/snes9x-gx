@@ -321,7 +321,7 @@ static void DrawSnes(XenosSurface * data) {
 
 	// Display
 	Xe_Resolve(g_pVideoDevice);
-	 while (!Xe_IsVBlank(g_pVideoDevice));
+	while (!Xe_IsVBlank(g_pVideoDevice));
 	Xe_Sync(g_pVideoDevice);
 	
 //	Xe_Execute(g_pVideoDevice);
