@@ -150,7 +150,7 @@ void UnmountAllFAT() {
  ***************************************************************************/
 void MountAllFAT() {
         fatInitDefault();
-        XTATMount();
+        XTAFMount();
 }
 
 /****************************************************************************
@@ -163,7 +163,7 @@ bool MountDVD(bool silent) {
 }
 
 bool FindDevice(char * filepath, int * device) {
-        if (strncmp(filepath, "uda:", 4) == 0) {
+        if (strncmp(filepath, "uda0:", 4) == 0) {
                 *device = DEVICE_USB;
                 return true;
         }
@@ -175,7 +175,7 @@ bool FindDevice(char * filepath, int * device) {
                 *device = DEVICE_SMB;
                 return true;
         }
-        else if (strncmp(filepath, "dvd:", 4) == 0) {
+        else if (strncmp(filepath, "dvd0:", 4) == 0) {
                 *device = DEVICE_DVD;
                 return true;
         }

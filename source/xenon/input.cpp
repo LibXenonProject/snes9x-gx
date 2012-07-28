@@ -101,7 +101,7 @@ static uint16_t WPAD_ButtonsDown(int ictrl) {
         //        btn |= WPAD_CLASSIC_BUTTON_START;
         //    }
         //
-        //    if (PUSHED(select)) {
+        //    if (PUSHED(back)) {
         //        btn |= WPAD_CLASSIC_BUTTON_BACK;
         //    }
         //
@@ -167,7 +167,7 @@ static uint16_t WPAD_ButtonsUp(int ictrl) {
         //        btn |= WPAD_CLASSIC_BUTTON_START;
         //    }
         //
-        //    if (RELEASED(select)) {
+        //    if (RELEASED(back)) {
         //        btn |= WPAD_CLASSIC_BUTTON_BACK;
         //    }
         //
@@ -233,7 +233,7 @@ static uint16_t WPAD_ButtonsHeld(int ictrl) {
         //        btn |= WPAD_CLASSIC_BUTTON_START;
         //    }
         //
-        //    if (HELD(select)) {
+        //    if (HELD(back)) {
         //        btn |= WPAD_CLASSIC_BUTTON_BACK;
         //    }
         //
@@ -299,7 +299,7 @@ static uint16_t PAD_ButtonsDown(int ictrl) {
                 btn |= PAD_BUTTON_START;
         }
 
-        if (PUSHED(select)) {
+        if (PUSHED(back)) {
                 btn |= PAD_BUTTON_BACK;
         }
 
@@ -364,7 +364,7 @@ static uint16_t PAD_ButtonsUp(int ictrl) {
                 btn |= PAD_BUTTON_START;
         }
 
-        if (RELEASED(select)) {
+        if (RELEASED(back)) {
                 btn |= PAD_BUTTON_BACK;
         }
 
@@ -430,7 +430,7 @@ static uint16_t PAD_ButtonsHeld(int ictrl) {
                 btn |= PAD_BUTTON_START;
         }
 
-        if (HELD(select)) {
+        if (HELD(back)) {
                 btn |= PAD_BUTTON_BACK;
         }
 
@@ -577,7 +577,7 @@ void SetDefaultButtonMap() {
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 L");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 R");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 Start");
-        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 Select");
+        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 Back");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 Up");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 Down");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad1 Left");
@@ -592,7 +592,7 @@ void SetDefaultButtonMap() {
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 L");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 R");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 Start");
-        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 Select");
+        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 Back");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 Up");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 Down");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad2 Left");
@@ -607,7 +607,7 @@ void SetDefaultButtonMap() {
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 L");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 R");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 Start");
-        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 Select");
+        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 Back");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 Up");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 Down");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad3 Left");
@@ -622,7 +622,7 @@ void SetDefaultButtonMap() {
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 L");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 R");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 Start");
-        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 Select");
+        ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 Back");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 Up");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 Down");
         ASSIGN_BUTTON_FALSE(maxcode++, "Joypad4 Left");
