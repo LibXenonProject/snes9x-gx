@@ -21,6 +21,7 @@ BUILD		:=	build_xenon
 SOURCES		:=	source/snes9x source/snes9x/apu \
 				source/xenon source/xenon/images source/sounds source/fonts source/lang \
 				source/xenon/gui source/utils source/utils/sz source/utils/unzip \
+				source/xenon/utils/tinysmb
 				
 INCLUDES	:=	source/xenon source/snes9x
 
@@ -110,7 +111,7 @@ export OUTPUT	:=	$(CURDIR)/$(TARGETDIR)/$(TARGET)
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@[ -d $(TARGETDIR) ] || mkdir -p $(TARGETDIR)
-	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile.xenon
+	@make --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile.xenon -j4
 
 #---------------------------------------------------------------------------------
 clean:
