@@ -27,6 +27,7 @@
 #include "snes9xgx.h"
 
 #include <xenon_soc/xenon_power.h>
+#include <threads/threads.h>
 #include <ppc/atomic.h>
 
 static uint8_t xenon_thread_stack[6 * 0x10000];
@@ -92,7 +93,10 @@ static void FinalizeSamplesCallback(void *data) {
  ***************************************************************************/
 void InitAudio() {
 	xenon_sound_init();
-	xenon_run_thread_task(4, xenon_thread_stack + (4 * 0x10000) - 0x100, audio_thread);
+	//xenon_run_thread_task(4, xenon_thread_stack + (4 * 0x10000) - 0x100, audio_thread);
+	//PTHREAD audio_thread = thread_create((void*)audio_thread,0,0,THREAD_FLAG_CREATE_SUSPENDED);
+	//thread_set_processor(audio_thread,3);
+	//thread_resume(audio_thread);
 	//S9xSetSamplesAvailableCallback(handle_sound, NULL);
 	S9xSetSamplesAvailableCallback(FinalizeSamplesCallback, NULL);
 }

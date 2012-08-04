@@ -564,7 +564,7 @@ int BrowserChangeFolder()
 		sprintf(browserList[i].displayname, "USB Mass Storage");
 		browserList[i].length = 0;
 		browserList[i].isdir = 1;
-		browserList[i].icon = ICON_SD;
+		browserList[i].icon = ICON_USB;
 		i++;
 		
 		AddBrowserEntry();

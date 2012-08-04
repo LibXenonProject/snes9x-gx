@@ -21,9 +21,9 @@ BUILD		:=	build_xenon
 SOURCES		:=	source/snes9x source/snes9x/apu \
 				source/xenon source/xenon/images source/sounds source/fonts source/lang \
 				source/xenon/gui source/utils source/utils/sz source/utils/unzip \
-				source/xenon/utils/tinysmb
+				source/xenon/utils/smb
 				
-INCLUDES	:=	source/xenon source/snes9x
+INCLUDES	:=	source/xenon source/snes9x source/xenon/utils/smb
 
 #---------------------------------------------------------------------------------
 # options for code generation

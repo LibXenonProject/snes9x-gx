@@ -27,7 +27,7 @@
 #include <libxtaf/xtaf.h>
 #include "snes9xgx.h"
 #include "fileop.h"
-//#include "networkop.h"
+#include "networkop.h"
 #include "gcunzip.h"
 #include "menu.h"
 #include "filebrowser.h"
@@ -163,19 +163,19 @@ bool MountDVD(bool silent) {
 }
 
 bool FindDevice(char * filepath, int * device) {
-        if (strncmp(filepath, "uda0:", 4) == 0) {
+        if (strncmp(filepath, "uda", 3) == 0) {
                 *device = DEVICE_USB;
                 return true;
         }
-        else if (strncmp(filepath, "sda0:", 4) == 0) {
+        else if (strncmp(filepath, "sda", 3) == 0) {
                 *device = DEVICE_HDD;
                 return true;
         }
-        else if (strncmp(filepath, "smb:", 4) == 0) {
+        else if (strncmp(filepath, "smb", 3) == 0) {
                 *device = DEVICE_SMB;
                 return true;
         }
-        else if (strncmp(filepath, "dvd0:", 4) == 0) {
+        else if (strncmp(filepath, "dvd", 3) == 0) {
                 *device = DEVICE_DVD;
                 return true;
         }
@@ -216,8 +216,7 @@ bool ChangeInterface(int device, bool silent) {
                         //mounted = MountDVD(silent);
                         break;
                 case DEVICE_SMB:
-                        //mounted = ConnectShare(silent);
-                        return false;
+                        mounted = ConnectShare(silent);
                         break;
         }
 

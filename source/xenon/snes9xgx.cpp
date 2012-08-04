@@ -93,7 +93,8 @@ void ExitApp()
 		xenon_smc_power_shutdown();
 }
 
-extern "C" bool smbInit(const char *user, const char *password, const char *share, const char *ip);
+extern "C" int smbInit(const char * mount_name,const char * ip, int port, const char * share, const char * user, const char * password);
+extern "C" void smbTest();
 
 #include <threads/threads.h>
 #include <network/network.h>
@@ -105,22 +106,18 @@ int main(int argc, char *argv[])
 	xenon_make_it_faster(XENON_SPEED_FULL);
 	threading_init();
 	InitVideo();
-	console_init();
-	network_init();
-	gdb_init();	
+	//console_init();
+	
+	//gdb_init();	
+	
+	//smbTest();
 	
 	// new
-	smbInit("cc","cc","media","192.168.1.98");
-	
-	FILE * sfd = fopen("smb:/1To/4E4D0801","rb");
-	printf("sfd : %p\n",sfd);
-	fclose(sfd);
+	//smbInit("smb","192.168.1.98", 445,"xenon_share","cc","cc");
 	
 	usb_init();
 	usb_do_poll();
 	xenon_ata_init();
-	
-	while(1);	
 
 	InitDeviceThread();
 	//InitGCVideo(); // Initialise video

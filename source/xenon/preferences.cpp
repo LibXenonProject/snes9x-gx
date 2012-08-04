@@ -419,6 +419,15 @@ DefaultSettings ()
 	GCSettings.MusicVolume = 40;
 	GCSettings.SFXVolume = 40;
 	GCSettings.Rumble = 1;
+	
+#if 1
+	// Ced2911 network config
+	strcpy(GCSettings.smbip, "192.168.1.98");
+	strcpy(GCSettings.smbshare, "xenon_share");
+	strcpy(GCSettings.smbuser, "cc");
+	strcpy(GCSettings.smbpwd, "cc");
+#endif
+	
 #ifdef HW_RVL
 	GCSettings.language = CONF_GetLanguage();
 
