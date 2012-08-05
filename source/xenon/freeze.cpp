@@ -26,6 +26,11 @@
 #include "../snes9x/snapshot.h"
 #include "../snes9x/language.h"
 
+// 64 * 48 -- tiled
+extern u8 * gameScreenPng;
+extern u8 * gameScreenThumbnail;
+extern int gameScreenPngSize;
+
 bool8 S9xOpenSnapshotFile(const char *filepath, bool8 readonly, STREAM *file)
 {
 	return FALSE;
@@ -47,7 +52,7 @@ SaveSnapshot (char * filepath, bool silent)
 
 	if(!FindDevice(filepath, &device))
 		return 0;
-#if 0
+	
 	// save screenshot
 	if(gameScreenPngSize > 0)
 	{
@@ -57,7 +62,6 @@ SaveSnapshot (char * filepath, bool silent)
 		sprintf(screenpath, "%s.png", screenpath);
 		SaveFile((char *)gameScreenPng, screenpath, gameScreenPngSize, silent);
 	}
-#endif
 
 	STREAM fp = OPEN_STREAM(filepath, "wb");
 	

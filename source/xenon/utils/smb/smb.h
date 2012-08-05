@@ -6,9 +6,9 @@
 #ifndef __SMB_H__
 #define __SMB_H__
 
-
-//#define smb_printf(...) do{TR;printf(__VA_ARGS__);}while(0);
-#define smb_printf(...)
+#define TR {printf("[Trace] in function %s, line %d, file %s\n",__FUNCTION__,__LINE__,__FILE__);}
+#define smb_printf(...) do{TR;printf(__VA_ARGS__);}while(0);
+//#define smb_printf(...)
 
 #include "smbman.h"
 

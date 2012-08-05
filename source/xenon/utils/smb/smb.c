@@ -1511,6 +1511,8 @@ int smb_WriteAndX(int UID, int TID, int FID, s64 fileoffset, void *writebuf, u16
 	WR->ByteCount = bswap_16(nbytes);
 
 	memcpy((void *) (&SMB_buf[4 + WR->DataOffset]), writebuf, nbytes);
+	
+	WR->DataOffset = bswap_16(WR->DataOffset);
 
 	rawTCP_SetSessionHeader(63 + nbytes);
 	r = GetSMBServerReply();

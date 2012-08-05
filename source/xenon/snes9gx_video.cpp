@@ -5,7 +5,8 @@
 #include <unistd.h>
 #include <input/input.h>
 #include <console/console.h>
-
+#include <png.h>
+#include <_pnginfo.h>
 #include <ppc/timebase.h>
 #include <time/time.h>
 #include <ppc/atomic.h>
@@ -16,6 +17,7 @@
 #include <xenos/xenos.h>
 
 #include <debug.h>
+#define TR {printf("[Trace] in function %s, line %d, file %s\n",__FUNCTION__,__LINE__,__FILE__);}
 
 #include "Vec.h"
 #include "video.h"
@@ -34,6 +36,9 @@ struct ati_info {
 
 #define MAX_SHADER 10
 
+#define SNES_THUMBNAIL_W 64
+#define SNES_THUMBNAIL_H 48
+
 typedef unsigned int DWORD;
 
 typedef void (*video_callback)(void*);
@@ -50,15 +55,15 @@ typedef struct {
 	float u, v;
 } SnesVerticeFormats;
 
-typedef struct{
+typedef struct {
 	float w;
 	float h;
 } float2;
 
 typedef struct {
-       float2 video_size;
-       float2 texture_size;
-       float2 output_size;
+	float2 video_size;
+	float2 texture_size;
+	float2 output_size;
 } _shaderParameters;
 
 #include "shaders/5xBR-v3.7a.ps.h"
@@ -84,10 +89,23 @@ typedef struct {
 
 static matrix4x4 modelViewProj;
 static struct XenosVertexBuffer *snes_vb = NULL;
+static struct XenosVertexBuffer *render_to_target_vb = NULL;
 // bitmap emulation
 static struct XenosSurface * g_SnesSurface = NULL;
 // fb copy of snes display used by gui
 static struct XenosSurface * g_SnesSurfaceShadow = NULL;
+static struct XenosSurface * g_SnesSurfaceShadowDouble = NULL;
+
+#define r32(o) g_pVideoDevice->regs[(o)/4]
+#define w32(o, v) g_pVideoDevice->regs[(o)/4] = (v)
+
+// 64 * 48 -- tiled
+u8 * gameScreenPng = NULL;
+u8 * gameScreenThumbnail = NULL;
+int gameScreenPngSize = 0;
+static struct XenosSurface * g_SnesThumbnail = NULL;
+
+static void * fb_ptr;
 
 static int selected_snes_shader = 0;
 static int nb_snes_shaders = 0;
@@ -145,14 +163,17 @@ void initSnesVideo() {
 	loadShader("Xbr 5x 3.7a", &vbf, PS5xBRa, VS5xBRa, no_filtering_callback);
 	loadShader("Xbr 5x 3.7b", &vbf, PS5xBRb, VS5xBRb, no_filtering_callback);
 	loadShader("Xbr 5x 3.7c", &vbf, PS5xBRc, VS5xBRc, no_filtering_callback);
-	
+
 	//loadShader("Scanlines", &vbf, PSScanline, VSScanline, no_filtering_callback);
 
 	snes_vb = Xe_CreateVertexBuffer(g_pVideoDevice, 4096);
+	render_to_target_vb = Xe_CreateVertexBuffer(g_pVideoDevice, 4096);
 
 	// Create surfaces
 	g_SnesSurface = Xe_CreateTexture(g_pVideoDevice, MAX_SNES_WIDTH, MAX_SNES_HEIGHT, 1, XE_FMT_565 | XE_FMT_16BE, 0);
-	g_SnesSurfaceShadow = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_ARGB, 0);
+	g_SnesSurfaceShadow = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
+	g_SnesSurfaceShadowDouble = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
+	g_SnesThumbnail = Xe_CreateTexture(g_pVideoDevice, SNES_THUMBNAIL_W, SNES_THUMBNAIL_H, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
 
 	g_SnesSurface->u_addressing = XE_TEXADDR_WRAP;
 	g_SnesSurface->v_addressing = XE_TEXADDR_WRAP;
@@ -166,6 +187,11 @@ void initSnesVideo() {
 	// init fake matrices
 	matrixLoadIdentity(&modelViewProj);
 
+	// thumbnail png
+	gameScreenPng = (u8*) malloc(SNES_THUMBNAIL_W * SNES_THUMBNAIL_H * sizeof (uint32));
+	gameScreenThumbnail = (u8*) malloc(SNES_THUMBNAIL_W * SNES_THUMBNAIL_H * sizeof (uint32));
+	
+	fb_ptr = r32(0x6110);
 }
 
 static int detect_changes(int w, int h) {
@@ -226,13 +252,101 @@ end:
 	return changed;
 }
 
+static void RenderInSurface(XenosSurface * source, XenosSurface * dest) {
+	// Update Vb
+	float x = -1, y = -1, w = 2, h = 2;
+	float u = (screenwidth/dest->width);
+	float v = (screenheight/dest->height);
+	SnesVerticeFormats* Rect = (SnesVerticeFormats*) Xe_VB_Lock(g_pVideoDevice, render_to_target_vb, 0, 4096, XE_LOCK_WRITE);
+	{
+		Rect[0].x = x;
+		Rect[0].y = y + h;
+		Rect[0].u = 0;
+		Rect[0].v = 0;
+
+		// bottom left
+		Rect[1].x = x;
+		Rect[1].y = y;
+		Rect[1].u = 0;
+		Rect[1].v = v;
+
+		// top right
+		Rect[2].x = x + w;
+		Rect[2].y = y + h;
+		Rect[2].u = u;
+		Rect[2].v = 0;
+
+		// top right
+		Rect[3].x = x + w;
+		Rect[3].y = y + h;
+		Rect[3].u = u;
+		Rect[3].v = 0;
+
+		// bottom left
+		Rect[4].x = x;
+		Rect[4].y = y;
+		Rect[4].u = 0;
+		Rect[4].v = v;
+
+		// bottom right
+		Rect[5].x = x + w;
+		Rect[5].y = y;
+		Rect[5].u = u;
+		Rect[5].v = v;
+
+		int i = 0;
+		for (i = 0; i < 6; i++) {
+			Rect[i].z = 0.0;
+			Rect[i].w = 1.0;
+		}
+	}
+	Xe_VB_Unlock(g_pVideoDevice, render_to_target_vb);
+	
+	// Begin draw
+	Xe_InvalidateState(g_pVideoDevice);
+	//Xe_SetAlphaTestEnable(g_pVideoDevice, 0);
+
+	Xe_SetCullMode(g_pVideoDevice, XE_CULL_NONE);
+	Xe_SetClearColor(g_pVideoDevice, 0);
+
+	Xe_SetShader(g_pVideoDevice, SHADER_TYPE_PIXEL, SnesShaders[0].ps, 0);
+	Xe_SetShader(g_pVideoDevice, SHADER_TYPE_VERTEX, SnesShaders[0].vs, 0);
+	Xe_SetStreamSource(g_pVideoDevice, 0, render_to_target_vb, 0, sizeof (SnesVerticeFormats));
+
+	Xe_SetTexture(g_pVideoDevice, 0, source);
+
+	Xe_DrawPrimitive(g_pVideoDevice, XE_PRIMTYPE_RECTLIST, 0, 1);
+
+	Xe_ResolveInto(g_pVideoDevice, dest, XE_SOURCE_COLOR, XE_CLEAR_COLOR | XE_CLEAR_DS);
+
+	Xe_Sync(g_pVideoDevice);
+}
+
 static void DrawSnes(XenosSurface * data) {
 	if (data == NULL)
 		return;
+#if 0
+	// double buffering
+	static int ibuffer = 0;
+	ibuffer ^= 1;
+	if(ibuffer ==0) {
+		// hack !!
+		w32(0x6110,g_SnesSurfaceShadow->base);
+		g_pVideoDevice->tex_fb.base = g_SnesSurfaceShadow->base;
+		Xe_SetRenderTarget(g_pVideoDevice,g_SnesSurfaceShadow);
+	}
+	else{
+		w32(0x6110,g_SnesSurfaceShadowDouble->base);
+		g_pVideoDevice->tex_fb.base = g_SnesSurfaceShadowDouble->base;
+		Xe_SetRenderTarget(g_pVideoDevice,g_SnesSurfaceShadowDouble);
+	}
+#elif 0
+	// hack !!
+	w32(0x6110,g_SnesSurfaceShadow->base);
+	g_pVideoDevice->tex_fb.base = g_SnesSurfaceShadow->base;
+	Xe_SetRenderTarget(g_pVideoDevice,g_SnesSurfaceShadow);
+#endif
 
-//	while (!Xe_IsVBlank(g_pVideoDevice));
-//	Xe_Sync(g_pVideoDevice);
-	
 	// detect if something changed
 	if (detect_changes(g_SnesSurface->width, g_SnesSurface->height)) {
 		// work on vb
@@ -246,8 +360,8 @@ static void DrawSnes(XenosSurface * data) {
 		w = (scale * 2.f) * GCSettings.zoomHor;
 		h = 2.f * GCSettings.zoomVert;
 
-		x = (GCSettings.xshift / (float) screenwidth) - (w/2.f);
-		y = (-GCSettings.yshift / (float) screenheight) - (h/2.f);
+		x = (GCSettings.xshift / (float) screenwidth) - (w / 2.f);
+		y = (-GCSettings.yshift / (float) screenheight) - (h / 2.f);
 
 		// Update Vb
 		SnesVerticeFormats* Rect = (SnesVerticeFormats*) Xe_VB_Lock(g_pVideoDevice, snes_vb, 0, 4096, XE_LOCK_WRITE);
@@ -313,7 +427,7 @@ static void DrawSnes(XenosSurface * data) {
 
 	// use the callback related to selected shader
 	SnesShaders[selected_snes_shader].callback(NULL);
-	
+
 	Xe_SetTexture(g_pVideoDevice, 0, data);
 
 	// Draw
@@ -321,10 +435,9 @@ static void DrawSnes(XenosSurface * data) {
 
 	// Display
 	Xe_Resolve(g_pVideoDevice);
+
 	while (!Xe_IsVBlank(g_pVideoDevice));
 	Xe_Sync(g_pVideoDevice);
-	
-//	Xe_Execute(g_pVideoDevice);
 }
 
 XenosSurface * get_snes_surface() {
@@ -350,11 +463,94 @@ static void ShowFPS(void) {
 
 static int frame = 0;
 
-void update_video(int width, int height) {
+struct file_buffer_t {
+	char name[256];
+	unsigned char *data;
+	long length;
+	long offset;
+};
 
+struct pngMem {
+	unsigned char *png_end;
+	unsigned char *data;
+	int size;
+	int offset; //pour le parcours
+};
+
+static int offset = 0;
+
+static void png_mem_write(png_structp png_ptr, png_bytep data, png_size_t length) {
+	struct file_buffer_t *dst = (struct file_buffer_t *) png_get_io_ptr(png_ptr);
+	/* Copy data from image buffer */
+	memcpy(dst->data + dst->offset, data, length);
+	/* Advance in the file */
+	dst->offset += length;
+}
+
+static struct XenosSurface *savePNGToMemory(XenosSurface * surface, unsigned char *PNGdata, int * size) {
+	png_structp png_ptr_w;
+	png_infop info_ptr_w;
+	//        int number_of_passes;
+	png_bytep * row_pointers;
+
+	offset = 0;
+
+	struct file_buffer_t *file;
+	file = (struct file_buffer_t *) malloc(sizeof (struct file_buffer_t));
+	file->length = 1024 * 1024 * 5;
+	file->data = PNGdata; //5mo ...
+	file->offset = 0;
+
+	/* initialize stuff */
+	png_ptr_w = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+	if (!png_ptr_w) {
+		printf("[write_png_file] png_create_read_struct failed\n");
+		return 0;
+	}
+
+	info_ptr_w = png_create_info_struct(png_ptr_w);
+	if (!info_ptr_w) {
+		printf("[write_png_file] png_create_info_struct failed\n");
+		return 0;
+	}
+
+	png_set_write_fn(png_ptr_w, (png_voidp *) file, png_mem_write, NULL);
+	png_set_IHDR(png_ptr_w, info_ptr_w, surface->width, surface->height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+	uint32_t *data = (uint32_t *) surface->base;
+	uint32_t * untile_buffer = new uint32_t[surface->width * surface->height];
+	row_pointers = new png_bytep[surface->height];
+
+	int y, x;
+	for (y = 0; y < surface->height; ++y) {
+		for (x = 0; x < surface->width; ++x) {
+			unsigned int base = ((((y & ~31) * surface->width) + (x & ~31)*32) +
+					(((x & 3) + ((y & 1) << 2) + ((x & 28) << 1) + ((y & 30) << 5)) ^ ((y & 8) << 2)));
+			untile_buffer[y * surface->width + x] = 0xFF | __builtin_bswap32(data[base] >> 8);
+		}
+		row_pointers[y] = (png_bytep) (untile_buffer + y * surface->width);
+	}
+
+	png_set_rows(png_ptr_w, info_ptr_w, row_pointers);
+	png_write_png(png_ptr_w, info_ptr_w, PNG_TRANSFORM_IDENTITY, 0);
+	png_write_end(png_ptr_w, info_ptr_w);
+	png_destroy_write_struct(&png_ptr_w, &info_ptr_w);
+
+	*size = file->offset;
+
+	//free(file->data);
+	free(file);
+	//delete(data);
+	delete(row_pointers);
+
+	return (surface);
+}
+
+void update_video(int width, int height) {			
 	g_SnesSurface->width = width;
 	g_SnesSurface->height = height;
-	
+
 	shaderParameters.texture_size.w = width;
 	shaderParameters.texture_size.h = height;
 	shaderParameters.video_size.w = width;
@@ -362,36 +558,29 @@ void update_video(int width, int height) {
 	shaderParameters.output_size.w = width;
 	shaderParameters.output_size.h = height;
 
-	 if (GCSettings.render == 0 || GCSettings.render == 2 || selected_snes_shader)
+	if (GCSettings.render == 0 || GCSettings.render == 2 || selected_snes_shader)
 		g_SnesSurface->use_filtering = 0;
-	 else
-		 g_SnesSurface->use_filtering = 1;
+	else
+		g_SnesSurface->use_filtering = 1;
 
 	DrawSnes(g_SnesSurface);
 
 	// Display Menu ?
 	if (ScreenshotRequested) {
-//		Xe_Sync(g_pVideoDevice);
+		// thumbnail
+		RenderInSurface(g_SnesSurface, g_SnesThumbnail);
+		// fb shadow
+		RenderInSurface(g_SnesSurface, g_SnesSurfaceShadow);
 		
-		// copy fb
-		struct ati_info *ai = (struct ati_info*) 0xec806100ULL;
-
-		int width = ai->width;
-		int height = ai->height;
-
-		uint32_t * dst = (uint32_t*) Xe_Surface_LockRect(g_pVideoDevice, g_SnesSurfaceShadow, 0, 0, 0, 0, XE_LOCK_WRITE);
-		volatile uint32_t *screen = (uint32_t*) (long) (ai->base | 0x80000000);
-
-		int y, x;
-		for (y = 0; y < height; ++y) {
-			for (x = 0; x < width; ++x) {
-				unsigned int base = ((((y & ~31) * width) + (x & ~31)*32) +
-						(((x & 3) + ((y & 1) << 2) + ((x & 28) << 1) + ((y & 30) << 5)) ^ ((y & 8) << 2)));
-				dst[y * width + x] = 0xFF000000 | __builtin_bswap32(screen[base]);
-			}
-		}
-		Xe_Surface_Unlock(g_pVideoDevice, g_SnesSurfaceShadow);
-
+		// convert to png
+		savePNGToMemory(g_SnesThumbnail, gameScreenPng, &gameScreenPngSize);
+		
+#if 0
+		// Revert to real fb
+		w32(0x6110,fb_ptr);
+		g_pVideoDevice->tex_fb.base = fb_ptr;
+		Xe_SetRenderTarget(g_pVideoDevice,Xe_GetFramebufferSurface(g_pVideoDevice));
+#endif
 
 		ScreenshotRequested = 0;
 		//TakeScreenshot();
@@ -411,8 +600,8 @@ const char* GetFilterName(int filterID) {
 
 void SelectFilterMethod() {
 	if (GCSettings.FilterMethod >= nb_snes_shaders) {
-		GCSettings.FilterMethod=nb_snes_shaders-1;
-	} 
+		GCSettings.FilterMethod = nb_snes_shaders - 1;
+	}
 	selected_snes_shader = GCSettings.FilterMethod;
 }
 
