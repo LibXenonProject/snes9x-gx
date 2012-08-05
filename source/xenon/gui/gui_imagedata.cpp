@@ -187,6 +187,7 @@ GuiImageData::GuiImageData(const u8 * i, int maxw, int maxh) {
     if (i){
         //data = DecodePNG(i, &width, &height, maxw, maxh);
         data = loadPNGFromMemory((unsigned char*)i);
+		data->use_filtering = 0;
         width = data->width;
         height = data->height;
     }

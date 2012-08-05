@@ -325,7 +325,7 @@ static void RenderInSurface(XenosSurface * source, XenosSurface * dest) {
 static void DrawSnes(XenosSurface * data) {
 	if (data == NULL)
 		return;
-#if 0
+#if 1
 	// double buffering
 	static int ibuffer = 0;
 	ibuffer ^= 1;
@@ -347,6 +347,8 @@ static void DrawSnes(XenosSurface * data) {
 	Xe_SetRenderTarget(g_pVideoDevice,g_SnesSurfaceShadow);
 #endif
 
+	while (!Xe_IsVBlank(g_pVideoDevice));
+	
 	// detect if something changed
 	if (detect_changes(g_SnesSurface->width, g_SnesSurface->height)) {
 		// work on vb
@@ -436,7 +438,7 @@ static void DrawSnes(XenosSurface * data) {
 	// Display
 	Xe_Resolve(g_pVideoDevice);
 
-	while (!Xe_IsVBlank(g_pVideoDevice));
+	//while (!Xe_IsVBlank(g_pVideoDevice));
 	Xe_Sync(g_pVideoDevice);
 }
 
