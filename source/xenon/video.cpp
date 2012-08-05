@@ -51,6 +51,11 @@ int screenheight;
 int screenwidth;
 u32 FrameTimer = 0;
 
+static void * fb_ptr;
+
+#define r32(o) g_pVideoDevice->regs[(o)/4]
+#define w32(o, v) g_pVideoDevice->regs[(o)/4] = (v)
+
 #define MAX_VERTEX_COUNT 65536
 
 static struct XenosDevice _xe;
@@ -260,6 +265,9 @@ InitVideo() {
         g_pVideoDevice = &_xe;
 
         Xe_Init(g_pVideoDevice);
+		
+		// save real fb
+		fb_ptr = r32(0x6110);
 
         XenosSurface * fb = Xe_GetFramebufferSurface(g_pVideoDevice);
 
@@ -343,7 +351,7 @@ void Menu_Render() {
         Xe_VB_Unlock(g_pVideoDevice, vb);
 
         Xe_InvalidateState(g_pVideoDevice);
-
+		
         Xe_Resolve(g_pVideoDevice);
 
         while (!Xe_IsVBlank(g_pVideoDevice));
@@ -389,6 +397,7 @@ void UpdatesMatrices(f32 xpos, f32 ypos, f32 width, f32 height, f32 degrees, f32
         matrixRotationZ(&rotation, DegToRad(degrees));
         matrixTranslation(&translation, xpos + width, ypos + height, 0);
         matrixScaling(&scale, scaleX, scaleY, 1.0f);
+		//matrixScaling(&scale, width, height, 1.0f);
 
         //    // scale => rotate => translate
         matrixMultiply(&m, &scale, &rotation);
@@ -430,8 +439,9 @@ void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, XenosSurface * data
 
         DrawVerticeFormats* Rect = (DrawVerticeFormats*) Xe_VB_Lock(g_pVideoDevice, vb, nb_vertices, 4 * sizeof (DrawVerticeFormats), XE_LOCK_WRITE);
         {
-                // CreateVb(x,y,w*scaleX,h*scaleY,color.lcol,Rect);
-                CreateVbQuad(w, h, color.lcol, Rect);
+			// CreateVb(x,y,w*scaleX,h*scaleY,color.lcol,Rect);
+			CreateVbQuad(w, h, color.lcol, Rect);
+			//CreateVbQuad(1,1, color.lcol, Rect);
         }
         Xe_VB_Unlock(g_pVideoDevice, vb);
 

@@ -94,7 +94,8 @@ static struct XenosVertexBuffer *render_to_target_vb = NULL;
 static struct XenosSurface * g_SnesSurface = NULL;
 // fb copy of snes display used by gui
 static struct XenosSurface * g_SnesSurfaceShadow = NULL;
-static struct XenosSurface * g_SnesSurfaceShadowDouble = NULL;
+// used for double buffering
+static struct XenosSurface * g_framebuffer[2] = {NULL};
 
 #define r32(o) g_pVideoDevice->regs[(o)/4]
 #define w32(o, v) g_pVideoDevice->regs[(o)/4] = (v)
@@ -104,8 +105,6 @@ u8 * gameScreenPng = NULL;
 u8 * gameScreenThumbnail = NULL;
 int gameScreenPngSize = 0;
 static struct XenosSurface * g_SnesThumbnail = NULL;
-
-static void * fb_ptr;
 
 static int selected_snes_shader = 0;
 static int nb_snes_shaders = 0;
@@ -171,9 +170,14 @@ void initSnesVideo() {
 
 	// Create surfaces
 	g_SnesSurface = Xe_CreateTexture(g_pVideoDevice, MAX_SNES_WIDTH, MAX_SNES_HEIGHT, 1, XE_FMT_565 | XE_FMT_16BE, 0);
-	g_SnesSurfaceShadow = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
-	g_SnesSurfaceShadowDouble = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
 	g_SnesThumbnail = Xe_CreateTexture(g_pVideoDevice, SNES_THUMBNAIL_W, SNES_THUMBNAIL_H, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
+	
+	// Create surface for double buffering
+	g_framebuffer[0] = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
+	g_framebuffer[1] = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
+	
+	
+	g_SnesSurfaceShadow = g_framebuffer[0];	
 
 	g_SnesSurface->u_addressing = XE_TEXADDR_WRAP;
 	g_SnesSurface->v_addressing = XE_TEXADDR_WRAP;
@@ -190,8 +194,6 @@ void initSnesVideo() {
 	// thumbnail png
 	gameScreenPng = (u8*) malloc(SNES_THUMBNAIL_W * SNES_THUMBNAIL_H * sizeof (uint32));
 	gameScreenThumbnail = (u8*) malloc(SNES_THUMBNAIL_W * SNES_THUMBNAIL_H * sizeof (uint32));
-	
-	fb_ptr = r32(0x6110);
 }
 
 static int detect_changes(int w, int h) {
@@ -322,32 +324,15 @@ static void RenderInSurface(XenosSurface * source, XenosSurface * dest) {
 	Xe_Sync(g_pVideoDevice);
 }
 
+// used to know which fb to use
+static int ibuffer = 0;
+
 static void DrawSnes(XenosSurface * data) {
 	if (data == NULL)
 		return;
-#if 1
-	// double buffering
-	static int ibuffer = 0;
-	ibuffer ^= 1;
-	if(ibuffer ==0) {
-		// hack !!
-		w32(0x6110,g_SnesSurfaceShadow->base);
-		g_pVideoDevice->tex_fb.base = g_SnesSurfaceShadow->base;
-		Xe_SetRenderTarget(g_pVideoDevice,g_SnesSurfaceShadow);
-	}
-	else{
-		w32(0x6110,g_SnesSurfaceShadowDouble->base);
-		g_pVideoDevice->tex_fb.base = g_SnesSurfaceShadowDouble->base;
-		Xe_SetRenderTarget(g_pVideoDevice,g_SnesSurfaceShadowDouble);
-	}
-#elif 0
-	// hack !!
-	w32(0x6110,g_SnesSurfaceShadow->base);
-	g_pVideoDevice->tex_fb.base = g_SnesSurfaceShadow->base;
-	Xe_SetRenderTarget(g_pVideoDevice,g_SnesSurfaceShadow);
-#endif
 
-	while (!Xe_IsVBlank(g_pVideoDevice));
+	// double buffering
+	ibuffer ^= 1;	
 	
 	// detect if something changed
 	if (detect_changes(g_SnesSurface->width, g_SnesSurface->height)) {
@@ -438,7 +423,20 @@ static void DrawSnes(XenosSurface * data) {
 	// Display
 	Xe_Resolve(g_pVideoDevice);
 
-	//while (!Xe_IsVBlank(g_pVideoDevice));
+	while (!Xe_IsVBlank(g_pVideoDevice));
+	
+	// must be called between vblank and vsync
+	if(ibuffer ==0) {
+		// hack !!
+		w32(0x6110,g_framebuffer[0]->base);
+		g_pVideoDevice->tex_fb.base = g_framebuffer[0]->base;
+		Xe_SetRenderTarget(g_pVideoDevice,g_framebuffer[0]);
+	}
+	else{
+		w32(0x6110,g_framebuffer[1]->base);
+		g_pVideoDevice->tex_fb.base = g_framebuffer[1]->base;
+		Xe_SetRenderTarget(g_pVideoDevice,g_framebuffer[1]);
+	}
 	Xe_Sync(g_pVideoDevice);
 }
 
@@ -572,17 +570,17 @@ void update_video(int width, int height) {
 		// thumbnail
 		RenderInSurface(g_SnesSurface, g_SnesThumbnail);
 		// fb shadow
-		RenderInSurface(g_SnesSurface, g_SnesSurfaceShadow);
+		//RenderInSurface(g_SnesSurface, g_SnesSurfaceShadow);
+		if(ibuffer ==0) {
+			g_SnesSurfaceShadow = g_framebuffer[1];
+		}
+		else {
+			g_SnesSurfaceShadow = g_framebuffer[0];
+		}
 		
 		// convert to png
 		savePNGToMemory(g_SnesThumbnail, gameScreenPng, &gameScreenPngSize);
 		
-#if 0
-		// Revert to real fb
-		w32(0x6110,fb_ptr);
-		g_pVideoDevice->tex_fb.base = fb_ptr;
-		Xe_SetRenderTarget(g_pVideoDevice,Xe_GetFramebufferSurface(g_pVideoDevice));
-#endif
 
 		ScreenshotRequested = 0;
 		//TakeScreenshot();
