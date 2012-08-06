@@ -156,6 +156,9 @@ void initSnesVideo() {
 			{XE_USAGE_TEXCOORD, 0, XE_TYPE_FLOAT2},
 		}
 	};
+        
+        XenosSurface * fb = Xe_GetFramebufferSurface(g_pVideoDevice);
+
 
 	loadShader("Normal", &vbf, PSSimple, VSSimple, default_callback);
 	//loadShader("Xbr 2x 3.5a", &vbf, PS2xBRa, VS2xBRa, no_filtering_callback); /// too slow ?
@@ -173,8 +176,8 @@ void initSnesVideo() {
 	g_SnesThumbnail = Xe_CreateTexture(g_pVideoDevice, SNES_THUMBNAIL_W, SNES_THUMBNAIL_H, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
 	
 	// Create surface for double buffering
-	g_framebuffer[0] = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
-	g_framebuffer[1] = Xe_CreateTexture(g_pVideoDevice, screenwidth, screenheight, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
+	g_framebuffer[0] = Xe_CreateTexture(g_pVideoDevice, fb->width, fb->height, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
+	g_framebuffer[1] = Xe_CreateTexture(g_pVideoDevice, fb->width, fb->height, 0, XE_FMT_8888 | XE_FMT_BGRA, 1);
 	
 	
 	g_SnesSurfaceShadow = g_framebuffer[0];	

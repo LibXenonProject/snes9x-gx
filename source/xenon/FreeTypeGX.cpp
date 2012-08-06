@@ -341,7 +341,6 @@ void FreeTypeGX::loadGlyphData(FT_Bitmap *bmp, ftgxCharData *charData) {
         length = w * h * 4;
 
         if (charData->glyphDataTexture) {
-                TR;
                 Xe_DestroyTexture(g_pVideoDevice, charData->glyphDataTexture);
         }
 
