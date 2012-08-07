@@ -753,9 +753,9 @@ negociate_retry:
 		server_specs.PasswordType = SERVER_USE_PLAINTEXT_PASSWORD;
 
 	// copy to global struct to keep needed information for further communication
-	server_specs.MaxBufferSize = NPRsp->MaxBufferSize;
-	server_specs.MaxMpxCount = NPRsp->MaxMpxCount;
-	server_specs.SessionKey = NPRsp->SessionKey;
+	server_specs.MaxBufferSize = bswap_32(NPRsp->MaxBufferSize);
+	server_specs.MaxMpxCount = bswap_16(NPRsp->MaxMpxCount);
+	server_specs.SessionKey = bswap_32(NPRsp->SessionKey);
 	memcpy(&server_specs.EncryptionKey[0], &NPRsp->ByteField[0], NPRsp->KeyLength);
 	memcpy(&server_specs.PrimaryDomainServerName[0], &NPRsp->ByteField[NPRsp->KeyLength], 64);
 
@@ -784,21 +784,22 @@ static int AddPassword(char *Password, int PasswordType, int AuthType, u16 *Ansi
 				case HASHED_PASSWORD:
 					if (AuthType == LM_AUTH) {
 						memcpy(passwordhash, &Password[0], 16);
-						memcpy(AnsiPassLen, &passwordlen, 2);
+                                                *AnsiPassLen = passwordlen;
+                        
 					}
 					if (AuthType == NTLM_AUTH) {
 						memcpy(passwordhash, &Password[16], 16);
-						memcpy(UnicodePassLen, &passwordlen, 2);
+                                            *UnicodePassLen = passwordlen;
 					}
 					break;
 
 				default:
 					if (AuthType == LM_AUTH) {
 						LM_Password_Hash(Password, passwordhash);
-						memcpy(AnsiPassLen, &passwordlen, 2);
+                                                 *AnsiPassLen = passwordlen;
 					} else if (AuthType == NTLM_AUTH) {
 						NTLM_Password_Hash(Password, passwordhash);
-						memcpy(UnicodePassLen, &passwordlen, 2);
+                                                 *UnicodePassLen = passwordlen;
 					}
 			}
 			LM_Response(passwordhash, server_specs.EncryptionKey, LMresponse);
@@ -810,13 +811,13 @@ static int AddPassword(char *Password, int PasswordType, int AuthType, u16 *Ansi
 				passwordlen = 14;
 			else if (passwordlen == 0)
 				passwordlen = 1;
-			memcpy(AnsiPassLen, &passwordlen, 2);
+                         *AnsiPassLen = passwordlen;
 			memcpy(Buffer, Password, passwordlen);
 		}
 	} else {
 		if (server_specs.SecurityMode == SERVER_SHARE_SECURITY_LEVEL) {
 			passwordlen = 1;
-			memcpy(AnsiPassLen, &passwordlen, 2);
+                         *AnsiPassLen = passwordlen;
 			Buffer[0] = 0;
 		}
 	}
@@ -868,8 +869,8 @@ lbl_session_setup:
 		passwordlen = AddPassword(Password, PasswordType, AuthType, &SSR->AnsiPasswordLength, &SSR->UnicodePasswordLength, &SSR->ByteField[0]);
 		offset += passwordlen;
 
-		SSR->AnsiPasswordLength = bswap_32(SSR->AnsiPasswordLength);
-		SSR->UnicodePasswordLength = bswap_32(SSR->UnicodePasswordLength);
+		SSR->AnsiPasswordLength = bswap_16(SSR->AnsiPasswordLength);
+		SSR->UnicodePasswordLength = bswap_16(SSR->UnicodePasswordLength);
 	}
 
 	if ((CF == 2) && (!(passwordlen & 1)))
