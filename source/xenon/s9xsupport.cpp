@@ -29,6 +29,16 @@
 #include "video.h"
 #include "audio.h"
 
+#ifdef NETPLAY_SUPPORT
+#include "../snes9x/netplay.h"
+#include "../snes9x/movie.h"
+#endif
+
+#ifdef NETPLAY_SUPPORT
+uint32	netplay_joypads[8];
+uint32	netplay_old_joypads[8];
+#endif
+
 #define gettime mftb
 
 #define MAX_MESSAGE_LEN (36 * 3)
@@ -39,6 +49,10 @@ static long long now;
 /*** Miscellaneous Functions ***/
 void S9xExit()
 {
+#ifdef NETPLAY_SUPPORT
+	if (Settings.NetPlay)
+		S9xNPDisconnect();
+#endif
 	ExitApp();
 }
 
@@ -82,6 +96,38 @@ bool8 S9xOpenSoundDevice(void)
 void S9xInitSync()
 {
 	prev = gettime();
+	
+#ifdef NETPLAY_SUPPORT
+	if (strlen(Settings.ServerName) == 0)
+	{
+		char	*server = getenv("S9XSERVER");
+		if (server)
+		{
+			strncpy(Settings.ServerName, server, 127);
+			Settings.ServerName[127] = 0;
+		}
+	}
+
+	char	*port = getenv("S9XPORT");
+	if (Settings.Port >= 0 && port)
+		Settings.Port = atoi(port);
+	else
+	if (Settings.Port < 0)
+		Settings.Port = -Settings.Port;
+
+	if (Settings.NetPlay)
+	{
+		NetPlay.MaxFrameSkip = 10;
+
+		if (!S9xNPConnectToServer(Settings.ServerName, Settings.Port, loadedFile))
+		{
+			printf("Failed to connect to server %s on port %d.\n", Settings.ServerName, Settings.Port);
+			S9xExit();
+		}
+
+		printf("Connected to server %s on port %d as player #%d playing %s.\n", Settings.ServerName, Settings.Port, NetPlay.Player, loadedFile);
+	}
+#endif
 }
 
 /*** Synchronisation ***/
@@ -129,6 +175,59 @@ void S9xSyncSpeed ()
 
 	prev = now;
 #endif
+	
+	#ifdef NETPLAY_SUPPORT
+	if (Settings.NetPlay && NetPlay.Connected)
+	{
+	#if defined(NP_DEBUG) && NP_DEBUG == 2
+		printf("CLIENT: SyncSpeed @%d\n", S9xGetMilliTime());
+	#endif
+
+		S9xNPSendJoypadUpdate(netplay_old_joypads[0]);
+		for (int J = 0; J < 8; J++)
+			netplay_joypads[J] = S9xNPGetJoypad(J);
+
+		if (!S9xNPCheckForHeartBeat())
+		{
+			NetPlay.PendingWait4Sync = !S9xNPWaitForHeartBeatDelay(100);
+		#if defined(NP_DEBUG) && NP_DEBUG == 2
+			if (NetPlay.PendingWait4Sync)
+				printf("CLIENT: PendingWait4Sync1 @%d\n", S9xGetMilliTime());
+		#endif
+
+			IPPU.RenderThisFrame = TRUE;
+			IPPU.SkippedFrames = 0;
+		}
+		else
+		{
+			NetPlay.PendingWait4Sync = !S9xNPWaitForHeartBeatDelay(200);
+		#if defined(NP_DEBUG) && NP_DEBUG == 2
+			if (NetPlay.PendingWait4Sync)
+				printf("CLIENT: PendingWait4Sync2 @%d\n", S9xGetMilliTime());
+		#endif
+
+			if (IPPU.SkippedFrames < NetPlay.MaxFrameSkip)
+			{
+				IPPU.RenderThisFrame = FALSE;
+				IPPU.SkippedFrames++;
+			}
+			else
+			{
+				IPPU.RenderThisFrame = TRUE;
+				IPPU.SkippedFrames = 0;
+			}
+		}
+
+		if (!NetPlay.PendingWait4Sync)
+		{
+			NetPlay.FrameCount++;
+			S9xNPStepJoypadHistory();
+		}
+
+		return;
+	}
+#endif
+	
 	return;
 }
 
@@ -244,3 +343,34 @@ int access(const char *pathname, int mode)
 	ExitApp();
 	return 1;
 }
+
+#ifdef NETPLAY_SUPPORT
+void doNetplay(){
+	if (NetPlay.PendingWait4Sync && !S9xNPWaitForHeartBeatDelay(100))
+	{
+		// S9xProcessEvents(FALSE);
+		return;
+	}
+
+	for (int J = 0; J < 8; J++)
+		netplay_old_joypads[J] = MovieGetJoypad(J);
+
+	for (int J = 0; J < 8; J++)
+		MovieSetJoypad(J, netplay_joypads[J]);
+
+	if (NetPlay.Connected)
+	{
+		if (NetPlay.PendingWait4Sync)
+		{
+			NetPlay.PendingWait4Sync = FALSE;
+			NetPlay.FrameCount++;
+			S9xNPStepJoypadHistory();
+		}
+	}
+	else
+	{
+		printf("Lost connection to server.\n");
+		S9xExit();
+	}
+}
+#endif

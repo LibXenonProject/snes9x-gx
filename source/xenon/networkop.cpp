@@ -23,6 +23,7 @@ static bool networkShareInit = false;
 char wiiIP[16] = {0};
 
 bool InitializeNetwork(bool silent) {
+#ifndef NETPLAY_SUPPORT
 	if (networkInit)
 		return true;
 
@@ -44,7 +45,8 @@ bool InitializeNetwork(bool silent) {
 		if (networkInit)
 			return true;
 	}
-	return networkInit;
+#endif
+	return true;
 }
 
 void CloseShare() {

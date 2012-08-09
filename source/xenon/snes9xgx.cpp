@@ -10,7 +10,6 @@
  *
  * This file controls overall program flow. Most things start and end here!
  ***************************************************************************/
-
 #include <xetypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,10 +40,15 @@
 #include "input.h"
 #include "FreeTypeGX.h"
 
+#ifdef NETPLAY_SUPPORT
+#include "../snes9x/netplay.h"
+#endif
+
 #include "../snes9x/snes9x.h"
 #include "../snes9x/memmap.h"
 #include "../snes9x/apu/apu.h"
 #include "../snes9x/controls.h"
+#include "../snes9x/movie.h"
 
 int ScreenshotRequested = 0;
 int ConfigRequested = 0;
@@ -55,6 +59,12 @@ char appPath[1024] = { 0 };
 char loadedFile[1024] = { 0 };
 static int currentMode;
 int exitThreads = 0;
+
+#ifdef NETPLAY_SUPPORT
+extern uint32	netplay_joypads[8];
+extern uint32	netplay_old_joypads[8];
+extern void doNetplay();
+#endif
 
 extern "C" {
 extern void __exception_setreload(int t);
@@ -106,6 +116,9 @@ int main(int argc, char *argv[])
 	xenon_make_it_faster(XENON_SPEED_FULL);
 	threading_init();
 	InitVideo();
+#ifdef NETPLAY_SUPPORT
+	network_init();
+#endif
 	//console_init();
 	
 	//gdb_init();	
@@ -191,10 +204,28 @@ int main(int argc, char *argv[])
 		prevRenderedFrameCount = IPPU.RenderedFramesCount;
 		currentMode = GCSettings.render;
 
+#ifdef NETPLAY_SUPPORT
+		bool8	NP_Activated = Settings.NetPlay;
+#endif
+		
 		while(1) // emulation loop
 		{
+#ifdef NETPLAY_SUPPORT
+			if (NP_Activated)
+			{
+				doNetplay();
+			}
+#endif			
 			S9xMainLoop ();
 			ReportButtons ();
+			
+#ifdef NETPLAY_SUPPORT
+			if (NP_Activated)
+			{
+				for (int J = 0; J < 8; J++)
+					MovieSetJoypad(J, netplay_joypads[J]);
+			}
+#endif
 
 			if(ResetRequested)
 			{

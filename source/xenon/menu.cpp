@@ -333,8 +333,112 @@ UpdateGUI(void *arg) {
 static int progsleep = 0;
 static int progress_suspended = 1;
 
-static void
-ProgressWindow(char *title, char *msg) {
+static void __ProgressWindow(char *title, char *msg){
+	HaltGui();
+
+	GuiWindow promptWindow(448, 288);
+	promptWindow.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+	promptWindow.SetPosition(0, -10);
+	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	GuiSound btnSoundClick(button_click_pcm, button_click_pcm_size, SOUND_PCM);
+	GuiImageData btnOutline(button_png);
+	GuiImageData btnOutlineOver(button_over_png);
+
+	GuiImageData dialogBox(dialogue_box_png);
+	GuiImage dialogBoxImg(&dialogBox);
+
+	GuiImageData progressbarOutline(progressbar_outline_png);
+	GuiImage progressbarOutlineImg(&progressbarOutline);
+	progressbarOutlineImg.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
+	progressbarOutlineImg.SetPosition(25, 40);
+
+	GuiImageData progressbarEmpty(progressbar_empty_png);
+	GuiImage progressbarEmptyImg(&progressbarEmpty);
+	progressbarEmptyImg.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
+	progressbarEmptyImg.SetPosition(25, 40);
+	progressbarEmptyImg.SetTile(100);
+
+	GuiImageData progressbar(progressbar_png);
+	GuiImage progressbarImg(&progressbar);
+	progressbarImg.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
+	progressbarImg.SetPosition(25, 40);
+
+	GuiImageData throbber(throbber_png);
+	GuiImage throbberImg(&throbber);
+	throbberImg.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
+	throbberImg.SetPosition(0, 40);
+
+	GuiText titleTxt(title, 26, (GXColor) {
+		70, 70, 10, 255
+	});
+	titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	titleTxt.SetPosition(0, 14);
+
+	GuiText msgTxt(msg, 26, (GXColor) {
+		0, 0, 0, 255
+	});
+	msgTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	msgTxt.SetPosition(0, 80);
+
+	promptWindow.Append(&dialogBoxImg);
+	promptWindow.Append(&titleTxt);
+	promptWindow.Append(&msgTxt);
+
+	if (showProgress == 1) {
+		promptWindow.Append(&progressbarEmptyImg);
+		promptWindow.Append(&progressbarImg);
+		promptWindow.Append(&progressbarOutlineImg);
+	} else {
+		promptWindow.Append(&throbberImg);
+	}
+
+	// wait to see if progress flag changes soon
+	progsleep = 400000;
+
+	while (progsleep > 0) {
+		UGUI();
+		if (!showProgress)
+			break;
+		usleep(THREAD_SLEEP);
+		progsleep -= THREAD_SLEEP;
+	}
+
+	if (!showProgress)
+		return;
+
+
+	int oldState = mainWindow->GetState();
+	mainWindow->SetState(STATE_DISABLED);
+	mainWindow->Append(&promptWindow);
+	mainWindow->ChangeFocus(&promptWindow);
+	ResumeGui();
+
+	float angle = 0;
+	u32 count = 0;
+
+	if (showProgress) {
+		
+		progsleep = 20000;
+
+		if (showProgress == 1) {
+			progressbarImg.SetTile(100 * progressDone / progressTotal);
+		} else if (showProgress == 2) {
+			angle += 45.0f;
+			if (angle >= 360.0f)
+				angle = 0;
+			throbberImg.SetAngle(angle);
+		}
+	}
+	
+	UGUI();
+
+	HaltGui();
+	mainWindow->Remove(&promptWindow);
+	mainWindow->SetState(oldState);
+	ResumeGui();
+}
+
+static void ProgressWindow(char *title, char *msg) {
 	HaltGui();
 
 	GuiWindow promptWindow(448, 288);
@@ -484,9 +588,6 @@ InitGUIThreads() {
 void
 CancelAction() {
 	showProgress = 0;
-	lock(&_progress_lock);
-	progress_suspended = 1;
-	unlock(&_progress_lock);
 
 	// wait for thread to finish
 	//	while(!LWP_ThreadIsSuspended(progressthread))
@@ -520,10 +621,9 @@ ShowProgress(const char *msg, int done, int total) {
 	showProgress = 1;
 	progressTotal = total;
 	progressDone = done;
-	lock(&_progress_lock);
-	progress_suspended = 0;
-	unlock(&_progress_lock);
 	//	LWP_ResumeThread (progressthread);
+	
+	ProgressWindow(progressTitle, progressMsg);
 }
 
 /****************************************************************************
@@ -545,10 +645,8 @@ ShowAction(const char *msg) {
 	showProgress = 2;
 	progressDone = 0;
 	progressTotal = 0;
-	lock(&_progress_lock);
-	progress_suspended = 0;
-	unlock(&_progress_lock);
-	//	LWP_ResumeThread (progressthread);
+	
+	ProgressWindow(progressTitle, progressMsg);
 }
 
 void ErrorPrompt(const char *msg) {
