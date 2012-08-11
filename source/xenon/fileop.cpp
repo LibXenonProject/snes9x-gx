@@ -588,7 +588,7 @@ LoadFile(char * rbuffer, char *filepath, size_t length, bool silent) {
                                 fseeko(file, 0, SEEK_SET);
 
                                 while (!feof(file)) {
-                                        ShowProgress("Loading...", offset, size);
+                                        //ShowProgress("Loading...", offset, size);
                                         readsize = fread(rbuffer + offset, 1, 4096, file); // read in next chunk
 
                                         if (readsize <= 0)

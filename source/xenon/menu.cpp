@@ -11,6 +11,10 @@
 #include "../snes9x/memmap.h"
 #include "../snes9x/cheats.h"
 
+#ifdef NETPLAY_SUPPORT
+#include "../snes9x/netplay.h"
+#endif
+
 #include <xetypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +33,7 @@
 #include "video.h"
 #include "filebrowser.h"
 #include "gcunzip.h"
-//#include "networkop.h"
+#include "networkop.h"
 #include "fileop.h"
 #include "sram.h"
 #include "freeze.h"
@@ -333,111 +337,6 @@ UpdateGUI(void *arg) {
 static int progsleep = 0;
 static int progress_suspended = 1;
 
-static void __ProgressWindow(char *title, char *msg){
-	HaltGui();
-
-	GuiWindow promptWindow(448, 288);
-	promptWindow.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-	promptWindow.SetPosition(0, -10);
-	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
-	GuiSound btnSoundClick(button_click_pcm, button_click_pcm_size, SOUND_PCM);
-	GuiImageData btnOutline(button_png);
-	GuiImageData btnOutlineOver(button_over_png);
-
-	GuiImageData dialogBox(dialogue_box_png);
-	GuiImage dialogBoxImg(&dialogBox);
-
-	GuiImageData progressbarOutline(progressbar_outline_png);
-	GuiImage progressbarOutlineImg(&progressbarOutline);
-	progressbarOutlineImg.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
-	progressbarOutlineImg.SetPosition(25, 40);
-
-	GuiImageData progressbarEmpty(progressbar_empty_png);
-	GuiImage progressbarEmptyImg(&progressbarEmpty);
-	progressbarEmptyImg.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
-	progressbarEmptyImg.SetPosition(25, 40);
-	progressbarEmptyImg.SetTile(100);
-
-	GuiImageData progressbar(progressbar_png);
-	GuiImage progressbarImg(&progressbar);
-	progressbarImg.SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
-	progressbarImg.SetPosition(25, 40);
-
-	GuiImageData throbber(throbber_png);
-	GuiImage throbberImg(&throbber);
-	throbberImg.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
-	throbberImg.SetPosition(0, 40);
-
-	GuiText titleTxt(title, 26, (GXColor) {
-		70, 70, 10, 255
-	});
-	titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-	titleTxt.SetPosition(0, 14);
-
-	GuiText msgTxt(msg, 26, (GXColor) {
-		0, 0, 0, 255
-	});
-	msgTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-	msgTxt.SetPosition(0, 80);
-
-	promptWindow.Append(&dialogBoxImg);
-	promptWindow.Append(&titleTxt);
-	promptWindow.Append(&msgTxt);
-
-	if (showProgress == 1) {
-		promptWindow.Append(&progressbarEmptyImg);
-		promptWindow.Append(&progressbarImg);
-		promptWindow.Append(&progressbarOutlineImg);
-	} else {
-		promptWindow.Append(&throbberImg);
-	}
-
-	// wait to see if progress flag changes soon
-	progsleep = 400000;
-
-	while (progsleep > 0) {
-		UGUI();
-		if (!showProgress)
-			break;
-		usleep(THREAD_SLEEP);
-		progsleep -= THREAD_SLEEP;
-	}
-
-	if (!showProgress)
-		return;
-
-
-	int oldState = mainWindow->GetState();
-	mainWindow->SetState(STATE_DISABLED);
-	mainWindow->Append(&promptWindow);
-	mainWindow->ChangeFocus(&promptWindow);
-	ResumeGui();
-
-	float angle = 0;
-	u32 count = 0;
-
-	if (showProgress) {
-		
-		progsleep = 20000;
-
-		if (showProgress == 1) {
-			progressbarImg.SetTile(100 * progressDone / progressTotal);
-		} else if (showProgress == 2) {
-			angle += 45.0f;
-			if (angle >= 360.0f)
-				angle = 0;
-			throbberImg.SetAngle(angle);
-		}
-	}
-	
-	UGUI();
-
-	HaltGui();
-	mainWindow->Remove(&promptWindow);
-	mainWindow->SetState(oldState);
-	ResumeGui();
-}
-
 static void ProgressWindow(char *title, char *msg) {
 	HaltGui();
 
@@ -497,16 +396,6 @@ static void ProgressWindow(char *title, char *msg) {
 		promptWindow.Append(&throbberImg);
 	}
 
-	// wait to see if progress flag changes soon
-	progsleep = 400000;
-
-	while (progsleep > 0) {
-		UGUI();
-		if (!showProgress)
-			break;
-		usleep(THREAD_SLEEP);
-		progsleep -= THREAD_SLEEP;
-	}
 
 	if (!showProgress)
 		return;
@@ -518,32 +407,14 @@ static void ProgressWindow(char *title, char *msg) {
 	mainWindow->ChangeFocus(&promptWindow);
 	ResumeGui();
 
-	float angle = 0;
-	u32 count = 0;
-
-	while (showProgress) {
-		UGUI();
-		progsleep = 20000;
-
-		while (progsleep > 0) {
-			if (!showProgress)
-				break;
-			usleep(THREAD_SLEEP);
-			UGUI();
-			progsleep -= THREAD_SLEEP;
-		}
-
+	if (showProgress) {
 		if (showProgress == 1) {
 			progressbarImg.SetTile(100 * progressDone / progressTotal);
 		} else if (showProgress == 2) {
-			if (count % 5 == 0) {
-				angle += 45.0f;
-				if (angle >= 360.0f)
-					angle = 0;
-				throbberImg.SetAngle(angle);
-			}
-			++count;
+			throbberImg.SetAngle(0);
 		}
+		
+		UGUI();
 	}
 
 	HaltGui();
@@ -623,7 +494,7 @@ ShowProgress(const char *msg, int done, int total) {
 	progressDone = done;
 	//	LWP_ResumeThread (progressthread);
 	
-	ProgressWindow(progressTitle, progressMsg);
+	//ProgressWindow(progressTitle, progressMsg);
 }
 
 /****************************************************************************
@@ -1139,6 +1010,10 @@ static int MenuGameSelection() {
 	gameBrowser.ResetState();
 	gameBrowser.fileList[0]->SetState(STATE_SELECTED);
 	gameBrowser.TriggerUpdate();
+	
+#ifdef NETPLAY_SUPPORT
+	S9xInitNetPlay();
+#endif	
 
 	while (menu == MENU_NONE) {
 		UGUI();
@@ -1533,6 +1408,10 @@ static int MenuGame() {
 			menu = MENU_GAME_LOAD;
 		} else if (resetBtn.GetState() == STATE_CLICKED) {
 			if (WindowPrompt("Reset Game", "Are you sure that you want to reset this game? Any unsaved progress will be lost.", "OK", "Cancel")) {
+#ifdef NETPLAY_SUPPORT				
+				if(NetPlay.Connected)
+					S9xNPDisconnect ();
+#endif
 				S9xSoftReset();
 				menu = MENU_EXIT;
 			}
@@ -1557,6 +1436,10 @@ static int MenuGame() {
 #ifndef NO_SOUND
 				bgMusic->Play(); // startup music
 #endif
+#ifdef NETPLAY_SUPPORT				
+				if(NetPlay.Connected)
+					S9xNPDisconnect ();
+#endif				
 				menu = MENU_GAMESELECTION;
 			}
 		} else if (closeBtn.GetState() == STATE_CLICKED) {
@@ -3796,6 +3679,12 @@ static int MenuSettingsNetwork() {
 	sprintf(options.name[i++], "SMB Share Name");
 	sprintf(options.name[i++], "SMB Share Username");
 	sprintf(options.name[i++], "SMB Share Password");
+	
+	sprintf(options.name[i++], "NetPlay");
+	sprintf(options.name[i++], "NetPlay Server");
+	sprintf(options.name[i++], "NetPlay Server Name");
+	//sprintf(options.name[i++], "NetPlay Server Port");
+	
 	options.length = i;
 
 	for (i = 0; i < options.length; i++)
@@ -3848,6 +3737,7 @@ static int MenuSettingsNetwork() {
 		ret = optionBrowser.GetClickedOption();
 
 		switch (ret) {
+			// samba
 			case 0:
 				OnScreenKeyboard(GCSettings.smbip, 80);
 				break;
@@ -3863,6 +3753,19 @@ static int MenuSettingsNetwork() {
 			case 3:
 				OnScreenKeyboard(GCSettings.smbpwd, 20);
 				break;
+				
+			// netplay				
+			case 4:
+				Settings.NetPlay = !Settings.NetPlay;
+				break;
+
+			case 5:
+				Settings.NetPlayServer = !Settings.NetPlayServer;
+				break;
+
+			case 6:
+				OnScreenKeyboard(Settings.ServerName, 20);
+				break;
 		}
 
 		if (ret >= 0 || firstRun) {
@@ -3871,6 +3774,9 @@ static int MenuSettingsNetwork() {
 			snprintf(options.value[1], 19, "%s", GCSettings.smbshare);
 			snprintf(options.value[2], 19, "%s", GCSettings.smbuser);
 			snprintf(options.value[3], 19, "%s", GCSettings.smbpwd);
+			snprintf(options.value[4], 19, "%s", Settings.NetPlay?"Yes":"No");
+			snprintf(options.value[5], 19, "%s", Settings.NetPlayServer?"Yes":"No");
+			snprintf(options.value[6], 19, "%s", Settings.ServerName);
 			optionBrowser.TriggerUpdate();
 		}
 
@@ -3967,6 +3873,11 @@ MainMenu(int menu) {
 	exitSound = new GuiSound(exit_ogg, exit_ogg_size, SOUND_OGG);
 	exitSound->SetVolume(GCSettings.SFXVolume);
 	if (currentMenu == MENU_GAMESELECTION) bgMusic->Play(); // startup music
+#endif
+	
+#ifdef NETPLAY_SUPPORT
+	if (SNESROMSize==0)
+		InitializeNetwork(false);
 #endif
 
 	while (currentMenu != MENU_EXIT || SNESROMSize <= 0) {

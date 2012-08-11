@@ -501,7 +501,7 @@ int BrowserLoadFile()
 	// store the filename (w/o ext) - used for sram/freeze naming
 	StripExt(Memory.ROMFilename, browserList[browser.selIndex].filename);
 	strcpy(loadedFile, browserList[browser.selIndex].filename);
-
+	
 	SNESROMSize = 0;
 	S9xDeleteCheats();
 	Memory.LoadROM("ROM");

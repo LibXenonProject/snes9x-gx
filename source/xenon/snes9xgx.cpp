@@ -27,7 +27,7 @@
 #include <debug.h>
 
 #include "snes9xgx.h"
-//#include "networkop.h"
+#include "networkop.h"
 #include "video.h"
 #include "audio.h"
 #include "menu.h"
@@ -116,9 +116,7 @@ int main(int argc, char *argv[])
 	xenon_make_it_faster(XENON_SPEED_FULL);
 	threading_init();
 	InitVideo();
-#ifdef NETPLAY_SUPPORT
-	network_init();
-#endif
+
 	//console_init();
 	
 	//gdb_init();	
@@ -161,14 +159,15 @@ int main(int argc, char *argv[])
 		ExitApp();
 	
 	//AllocGfxMem();
-	S9xInitSync(); // initialize frame sync
 	InitFreeType((u8*)font_ttf, font_ttf_size); // Initialize font system
 	
 	savebuffer = (unsigned char *)malloc(SAVEBUFFERSIZE);
 	browserList = (BROWSERENTRY *)malloc(sizeof(BROWSERENTRY)*MAX_BROWSER_SIZE);
 	
 	InitGUIThreads();
-
+	
+	S9xInitSync(); // initialize frame sync
+	
 	while (1) // main loop
 	{
 		// go back to checking if devices were inserted/removed

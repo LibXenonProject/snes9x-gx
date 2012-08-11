@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <ppc/timebase.h>
 #include <time/time.h>
+#include <debug.h>
 
 #include "snes9xgx.h"
 #include "video.h"
@@ -32,6 +33,7 @@
 #ifdef NETPLAY_SUPPORT
 #include "../snes9x/netplay.h"
 #include "../snes9x/movie.h"
+#include "menu.h"
 #endif
 
 #ifdef NETPLAY_SUPPORT
@@ -92,42 +94,43 @@ bool8 S9xOpenSoundDevice(void)
 	return TRUE;
 }
 
-/* eke-eke */
-void S9xInitSync()
+void S9xInitNetPlay()
 {
-	prev = gettime();
-	
 #ifdef NETPLAY_SUPPORT
 	if (strlen(Settings.ServerName) == 0)
 	{
-		char	*server = getenv("S9XSERVER");
-		if (server)
-		{
-			strncpy(Settings.ServerName, server, 127);
-			Settings.ServerName[127] = 0;
-		}
+		return;
 	}
 
-	char	*port = getenv("S9XPORT");
-	if (Settings.Port >= 0 && port)
-		Settings.Port = atoi(port);
-	else
 	if (Settings.Port < 0)
 		Settings.Port = -Settings.Port;
 
 	if (Settings.NetPlay)
 	{
 		NetPlay.MaxFrameSkip = 10;
+		
+		if(NetPlay.Connected)
+			S9xNPDisconnect ();
 
 		if (!S9xNPConnectToServer(Settings.ServerName, Settings.Port, loadedFile))
 		{
-			printf("Failed to connect to server %s on port %d.\n", Settings.ServerName, Settings.Port);
-			S9xExit();
+			char __error[512];
+			sprintf(__error,"Failed to connect to server %s on port %d.\n", Settings.ServerName, Settings.Port);
+			printf(__error);
+			//ErrorPrompt(__error);
+			//S9xExit();
+			Settings.NetPlay = 0;
 		}
 
 		printf("Connected to server %s on port %d as player #%d playing %s.\n", Settings.ServerName, Settings.Port, NetPlay.Player, loadedFile);
 	}
 #endif
+}
+
+/* eke-eke */
+void S9xInitSync()
+{
+	prev = gettime();
 }
 
 /*** Synchronisation ***/
@@ -179,10 +182,6 @@ void S9xSyncSpeed ()
 	#ifdef NETPLAY_SUPPORT
 	if (Settings.NetPlay && NetPlay.Connected)
 	{
-	#if defined(NP_DEBUG) && NP_DEBUG == 2
-		printf("CLIENT: SyncSpeed @%d\n", S9xGetMilliTime());
-	#endif
-
 		S9xNPSendJoypadUpdate(netplay_old_joypads[0]);
 		for (int J = 0; J < 8; J++)
 			netplay_joypads[J] = S9xNPGetJoypad(J);
@@ -190,10 +189,6 @@ void S9xSyncSpeed ()
 		if (!S9xNPCheckForHeartBeat())
 		{
 			NetPlay.PendingWait4Sync = !S9xNPWaitForHeartBeatDelay(100);
-		#if defined(NP_DEBUG) && NP_DEBUG == 2
-			if (NetPlay.PendingWait4Sync)
-				printf("CLIENT: PendingWait4Sync1 @%d\n", S9xGetMilliTime());
-		#endif
 
 			IPPU.RenderThisFrame = TRUE;
 			IPPU.SkippedFrames = 0;
@@ -201,10 +196,6 @@ void S9xSyncSpeed ()
 		else
 		{
 			NetPlay.PendingWait4Sync = !S9xNPWaitForHeartBeatDelay(200);
-		#if defined(NP_DEBUG) && NP_DEBUG == 2
-			if (NetPlay.PendingWait4Sync)
-				printf("CLIENT: PendingWait4Sync2 @%d\n", S9xGetMilliTime());
-		#endif
 
 			if (IPPU.SkippedFrames < NetPlay.MaxFrameSkip)
 			{
@@ -369,8 +360,8 @@ void doNetplay(){
 	}
 	else
 	{
-		printf("Lost connection to server.\n");
-		S9xExit();
+		ErrorPrompt("Lost connection to server.\n");
+		Settings.NetPlay = 0;
 	}
 }
 #endif

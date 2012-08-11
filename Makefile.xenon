@@ -36,7 +36,7 @@ CFLAGS	=	-g -O3 -Wall $(MACHDEP) $(INCLUDE)  -DNO_SOUND \
 			-DXENON -U__linux \
 			-Wno-unused-parameter -Wno-strict-aliasing \
 			-Wno-write-strings -Wno-parentheses \
-			-DNETPLAY_SUPPORT -DLIBXENON
+			-DLIBXENON
 
 CXXFLAGS	=	$(CFLAGS) -fpermissive
 

@@ -110,6 +110,7 @@ struct SGCSettings{
 	int 	language;
 };
 
+void S9xInitNetPlay();
 void ExitApp();
 void ShutdownWii();
 bool SupportedIOS(u32 ios);
