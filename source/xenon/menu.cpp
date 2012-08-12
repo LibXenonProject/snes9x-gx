@@ -91,7 +91,7 @@ static unsigned int __attribute__((aligned(128))) _gui_lock = 0;
 static unsigned int __attribute__((aligned(128))) _progress_lock = 0;
 
 
-static void * UGUI();
+static void * UGUI(bool vblank = true);
 
 /****************************************************************************
  * ResumeGui
@@ -258,14 +258,14 @@ WindowPrompt(const char *title, const char *msg, const char *btn1Label, const ch
  * Primary thread to allow GUI to respond to state changes, and draws GUI
  ***************************************************************************/
 
-static void * UGUI() {
+static void * UGUI(bool vblank) {
 	UpdatePads();
 	mainWindow->Draw();
 
 	if (mainWindow->GetState() != STATE_DISABLED)
 		mainWindow->DrawTooltip();
 
-	Menu_Render();
+	Menu_Render(vblank);
 
 	mainWindow->Update(&userInput[3]);
 	mainWindow->Update(&userInput[2]);
@@ -279,7 +279,7 @@ static void * UGUI() {
 			Menu_DrawRectangle(0, 0, screenwidth, screenheight, (GXColor) {
 				0, 0, 0, i
 			}, 1);
-			Menu_Render();
+			Menu_Render(vblank);
 		}
 		ExitApp();
 	}
@@ -292,33 +292,7 @@ UpdateGUI(void *arg) {
 	while (exitThreads == 0) {
 		lock(&_gui_lock);
 		if (guiHalt == false) {
-
-
-			UpdatePads();
-			mainWindow->Draw();
-
-			//                        if (mainWindow->GetState() != STATE_DISABLED)
-			//                                mainWindow->DrawTooltip();
-
-			Menu_Render();
-
-			mainWindow->Update(&userInput[3]);
-			mainWindow->Update(&userInput[2]);
-			mainWindow->Update(&userInput[1]);
-			mainWindow->Update(&userInput[0]);
-
-			if (ExitRequested || ShutdownRequested) {
-				for (i = 0; i <= 255; i += 15) {
-					mainWindow->Draw();
-
-					Menu_DrawRectangle(0, 0, screenwidth, screenheight, (GXColor) {
-						0, 0, 0, i
-					}, 1);
-					Menu_Render();
-				}
-				ExitApp();
-			}
-
+			UGUI();
 		}
 		unlock(&_gui_lock);
 
@@ -893,7 +867,7 @@ static void WindowCredits(void * ptr) {
 		} while (i >= 0);
 #endif
 
-		Menu_Render();
+		Menu_Render(true);
 
 		if ((userInput[0].wpad->btns_d || userInput[0].pad.btns_d) ||
 				(userInput[1].wpad->btns_d || userInput[1].pad.btns_d) ||
@@ -2970,7 +2944,7 @@ static int MenuSettingsVideo() {
 	sprintf(options.name[i++], "Screen Zoom");
 	sprintf(options.name[i++], "Screen Position");
 	sprintf(options.name[i++], "Crosshair");
-	sprintf(options.name[i++], "Video Mode");
+	// sprintf(options.name[i++], "Video Mode");
 	options.length = i;
 
 #ifdef HW_DOL

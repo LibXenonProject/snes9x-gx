@@ -266,19 +266,13 @@ InitVideo() {
 
         Xe_Init(g_pVideoDevice);
 		
-		// save real fb
-		fb_ptr = r32(0x6110);
+	// save real fb
+	fb_ptr = (void*)r32(0x6110);
 
         XenosSurface * fb = Xe_GetFramebufferSurface(g_pVideoDevice);
 
         screenheight = ((float) fb->height)*(720.f / (float) fb->height);
         screenwidth = ((float) fb->width)*(1280.f / (float) fb->width);
-
-        //        screenheight = ((float) fb->height)*(480.f / (float) fb->height);
-        //        screenwidth = ((float) fb->width)*(640.f / (float) fb->width);
-
-        //    screenheight = 480;
-        //    screenwidth = 640;
 
         Xe_Init(g_pVideoDevice);
 
@@ -342,7 +336,7 @@ extern "C" void doScreenCapture();
  *
  * Renders everything current sent to GX, and flushes video
  ***************************************************************************/
-void Menu_Render() {
+void Menu_Render(bool vblank) {
 
         FrameTimer++;
 
@@ -354,7 +348,8 @@ void Menu_Render() {
 		
         Xe_Resolve(g_pVideoDevice);
 
-        while (!Xe_IsVBlank(g_pVideoDevice));
+	if(vblank)
+		while (!Xe_IsVBlank(g_pVideoDevice));
 
         Xe_Sync(g_pVideoDevice);
 
