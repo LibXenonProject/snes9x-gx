@@ -42,6 +42,9 @@ typedef unsigned int DWORD;
 #include "shaders/ps.c.h"
 //#include "shaders/ps.snes.h"
 
+#include "shaders/simple.ps.h"
+#include "shaders/simple.vs.h"
+
 #define DEFAULT_FIFO_SIZE 256 * 1024
 
 //static GXRModeObj *vmode; // Menu video mode
@@ -73,12 +76,19 @@ matrix4x4 projection;
 //matrix4x4 WVP;
 static int nb_vertices = 0;
 
+#if 1
 typedef struct {
         float x, y, z, w; // 32
         unsigned int color; // 36
         unsigned int padding; // 40
         float u, v; // 48
 } __attribute__((packed)) DrawVerticeFormats;
+#else
+typedef struct {
+        float x, y, z, w; // 32
+        float u, v; // 48
+} __attribute__((packed)) DrawVerticeFormats;
+#endif
 
 // Init Matrices
 void InitMatrices() {
@@ -103,6 +113,7 @@ ResetVideo_Menu() {
         InitMatrices();
 }
 
+#if 1
 void CreateVbText(float x, float y, float w, float h, uint32_t color, DrawVerticeFormats * Rect) {
         // bottom left
         Rect[0].x = x - w;
@@ -246,6 +257,135 @@ void oCreateVbQuad(float width, float height, uint32_t color, DrawVerticeFormats
                 Rect[i].w = 1.0;
         }
 }
+#else
+void CreateVbText(float x, float y, float w, float h, uint32_t color, DrawVerticeFormats * Rect) {
+        // bottom left
+        Rect[0].x = x - w;
+        Rect[0].y = y + h;
+        Rect[0].u = 0;
+        Rect[0].v = 1;
+
+        // bottom right
+        Rect[1].x = x + w;
+        Rect[1].y = y + h;
+        Rect[1].u = 1;
+        Rect[1].v = 1;
+
+        // top right
+        Rect[2].x = x + w;
+        Rect[2].y = y - h;
+        Rect[2].u = 1;
+        Rect[2].v = 0;
+
+        // Top left
+        Rect[3].x = x - w;
+        Rect[3].y = y - h;
+        Rect[3].u = 0;
+        Rect[3].v = 0;
+
+        int i = 0;
+        for (i = 0; i < 4; i++) {
+                Rect[i].z = 0.0;
+                Rect[i].w = 1.0;
+        }
+}
+
+void CreateVb(float x, float y, float w, float h, uint32_t color, DrawVerticeFormats * Rect) {
+        // bottom left
+        Rect[0].x = x - w;
+        Rect[0].y = y - h;
+        Rect[0].u = 0;
+        Rect[0].v = 0;
+
+        // bottom right
+        Rect[1].x = x + w;
+        Rect[1].y = y - h;
+        Rect[1].u = 1;
+        Rect[1].v = 0;
+
+        // top right
+        Rect[2].x = x + w;
+        Rect[2].y = y + h;
+        Rect[2].u = 1;
+        Rect[2].v = 1;
+
+        // Top left
+        Rect[3].x = x - w;
+        Rect[3].y = y + h;
+        Rect[3].u = 0;
+        Rect[3].v = 1;
+
+        int i = 0;
+        for (i = 0; i < 4; i++) {
+                Rect[i].z = 0.0;
+                Rect[i].w = 1.0;
+        }
+}
+
+void CreateVbQuad(float width, float height, uint32_t color, DrawVerticeFormats * Rect) {
+        // bottom left
+        Rect[0].x = -width;
+        Rect[0].y = -height;
+        Rect[0].u = 0;
+        Rect[0].v = 0;
+
+        // bottom right
+        Rect[1].x = width;
+        Rect[1].y = -height;
+        Rect[1].u = 1;
+        Rect[1].v = 0;
+
+        // top right
+        Rect[2].x = width;
+        Rect[2].y = height;
+        Rect[2].u = 1;
+        Rect[2].v = 1;
+
+        // Top left
+        Rect[3].x = -width;
+        Rect[3].y = height;
+        Rect[3].u = 0;
+        Rect[3].v = 1;
+
+        int i = 0;
+        for (i = 0; i < 4; i++) {
+                Rect[i].z = 0.0;
+                Rect[i].w = 1.0;
+        }
+}
+
+void oCreateVbQuad(float width, float height, uint32_t color, DrawVerticeFormats * Rect) {
+        // bottom left
+        Rect[0].x = -width;
+        Rect[0].y = -height;
+        Rect[0].u = 0;
+        Rect[0].v = 0;
+
+        // bottom right
+        Rect[1].x = width;
+        Rect[1].y = -height;
+        Rect[1].u = 1;
+        Rect[1].v = 0;
+
+        // top right
+        Rect[2].x = width;
+        Rect[2].y = height;
+        Rect[2].u = 1;
+        Rect[2].v = 1;
+
+        // Top left
+        Rect[3].x = -width;
+        Rect[3].y = height;
+        Rect[3].u = 0;
+        Rect[3].v = 1;
+
+        int i = 0;
+        for (i = 0; i < 4; i++) {
+                Rect[i].z = 0.0;
+                Rect[i].w = 1.0;
+        }
+}
+#endif
 
 extern "C" struct XenosDevice * GetVideoDevice() {
         return g_pVideoDevice;
@@ -278,6 +418,8 @@ InitVideo() {
 
         Xe_SetRenderTarget(g_pVideoDevice, Xe_GetFramebufferSurface(g_pVideoDevice));
 
+    
+#if 1      
         static const struct XenosVBFFormat vbf = {
                 4,
                 {
@@ -287,7 +429,7 @@ InitVideo() {
                         {XE_USAGE_TEXCOORD, 0, XE_TYPE_FLOAT2},
                 }
         };
-    
+
         g_pPixelTexturedShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) g_xps_psT);
         Xe_InstantiateShader(g_pVideoDevice, g_pPixelTexturedShader, 0);
 
@@ -298,7 +440,26 @@ InitVideo() {
         Xe_InstantiateShader(g_pVideoDevice, g_pVertexShader, 0);
 
         Xe_ShaderApplyVFetchPatches(g_pVideoDevice, g_pVertexShader, 0, &vbf);
+#else
+          static const struct XenosVBFFormat vbf = {
+               2,
+		{
+			{XE_USAGE_POSITION, 0, XE_TYPE_FLOAT4},
+			{XE_USAGE_TEXCOORD, 0, XE_TYPE_FLOAT2},
+		}
+        };
 
+        g_pPixelTexturedShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) PSSimple);
+        Xe_InstantiateShader(g_pVideoDevice, g_pPixelTexturedShader, 0);
+
+        g_pPixelColoredShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) PSSimple);
+        Xe_InstantiateShader(g_pVideoDevice, g_pPixelColoredShader, 0);
+
+        g_pVertexShader = Xe_LoadShaderFromMemory(g_pVideoDevice, (void*) VSSimple);
+        Xe_InstantiateShader(g_pVideoDevice, g_pVertexShader, 0);
+
+        Xe_ShaderApplyVFetchPatches(g_pVideoDevice, g_pVertexShader, 0, &vbf);
+#endif
 
 
         edram_init(g_pVideoDevice);
@@ -376,7 +537,7 @@ void Draw() {
 
 void UpdatesMatrices(f32 xpos, f32 ypos, f32 width, f32 height, f32 degrees, f32 scaleX, f32 scaleY) {
 #define DegToRad(a)   ( (a) *  0.01745329252f )
-
+#if 1
         matrix4x4 m;
         matrix4x4 rotation;
         matrix4x4 scale;
@@ -399,6 +560,11 @@ void UpdatesMatrices(f32 xpos, f32 ypos, f32 width, f32 height, f32 degrees, f32
         matrixMultiply(&WVP, &m, &translation);
 
         Xe_SetVertexShaderConstantF(g_pVideoDevice, 0, (float*) &WVP, 4);
+#else
+        matrix4x4 modelViewProj;
+        matrixLoadIdentity(&modelViewProj);
+        Xe_SetVertexShaderConstantF(g_pVideoDevice, 0, (float*) &modelViewProj, 4);
+#endif
 }
 
 /****************************************************************************
@@ -419,11 +585,11 @@ void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, XenosSurface * data
         w = (float) width;
         h = (float) height;
 
-        x = (x / ((float) screenwidth / 2.f)) - 1.f; // 1280/2
-        y = (y / ((float) screenheight / 2.f)) - 1.f; // 720/2
+        x = (x / ((float) (screenwidth-1) / 2.f)) - 1.f; // 1280/2
+        y = (y / ((float) (screenheight-1) / 2.f)) - 1.f; // 720/2
 
-        w = (float) w / ((float) screenwidth);
-        h = (float) h / ((float) screenheight);
+        w = (float) w / ((float) screenwidth-1);
+        h = (float) h / ((float) screenheight-1);
 
         XeColor color;
 
@@ -435,7 +601,41 @@ void Menu_DrawImg(f32 xpos, f32 ypos, u16 width, u16 height, XenosSurface * data
         DrawVerticeFormats* Rect = (DrawVerticeFormats*) Xe_VB_Lock(g_pVideoDevice, vb, nb_vertices, 4 * sizeof (DrawVerticeFormats), XE_LOCK_WRITE);
         {
 			// CreateVb(x,y,w*scaleX,h*scaleY,color.lcol,Rect);
+#if 1
 			CreateVbQuad(w, h, color.lcol, Rect);
+#else
+            w*=1.9;
+            h*=1.9;
+                        // bottom left
+                       Rect[0].x = x;
+                       Rect[0].y = y;
+                       Rect[0].u = 0;
+                       Rect[0].v = 0;
+
+                       // bottom right
+                       Rect[1].x = x+w;
+                       Rect[1].y = y;
+                       Rect[1].u = 1;
+                       Rect[1].v = 0;
+
+                       // top right
+                       Rect[2].x = x+w;
+                       Rect[2].y = y+h;
+                       Rect[2].u = 1;
+                       Rect[2].v = 1;
+
+                       // Top left
+                       Rect[3].x = x;
+                       Rect[3].y = y+h;
+                       Rect[3].u = 0;
+                       Rect[3].v = 1;
+
+                       int i = 0;
+                       for (i = 0; i < 4; i++) {
+                               Rect[i].z = 0.0;
+                               Rect[i].w = 1.0;
+                       }
+#endif
 			//CreateVbQuad(1,1, color.lcol, Rect);
         }
         Xe_VB_Unlock(g_pVideoDevice, vb);
@@ -464,11 +664,11 @@ void Menu_DrawRectangle(f32 x, f32 y, f32 width, f32 height, GXColor color, u8 f
         w = (float) width;
         h = (float) height;
 
-        x = (x / ((float) screenwidth / 2.f)) - 1.f; // 1280/2
-        y = (y / ((float) screenheight / 2.f)) - 1.f; // 720/2
+        x = (x / ((float) (screenwidth-1) / 2.f)) - 1.f; // 1280/2
+        y = (y / ((float) (screenheight-1) / 2.f)) - 1.f; // 720/2
 
-        w = (float) w / ((float) screenwidth);
-        h = (float) h / ((float) screenheight);
+        w = (float) w / ((float) screenwidth-1);
+        h = (float) h / ((float) screenheight-1);
 
 
         XeColor _color;
@@ -496,7 +696,6 @@ void Menu_DrawRectangle(f32 x, f32 y, f32 width, f32 height, GXColor color, u8 f
 }
 
 void Menu_T(XenosSurface * surf, f32 texWidth, f32 texHeight, int16_t screenX, int16_t screenY, GXColor color) {
-        //return;
         float x, y, w, h;
         if (surf == NULL)
                 return;
@@ -506,11 +705,11 @@ void Menu_T(XenosSurface * surf, f32 texWidth, f32 texHeight, int16_t screenX, i
         w = (float) texWidth;
         h = (float) texHeight;
 
-        x = (x / ((float) screenwidth / 2.f)) - 1.f; // 1280/2
-        y = (y / ((float) screenheight / 2.f)) - 1.f; // 720/2
+        x = (x / ((float) (screenwidth-1) / 2.f)) - 1.f; // 1280/2
+        y = (y / ((float) (screenheight-1) / 2.f)) - 1.f; // 720/2
 
-        w = (float) w / ((float) screenwidth);
-        h = (float) h / ((float) screenheight);
+        w = (float) w / ((float) screenwidth-1);
+        h = (float) h / ((float) screenheight-1);
 
         // Correct aspect ratio
         //    h = h * ((float) screenwidth/(float) screenheight);

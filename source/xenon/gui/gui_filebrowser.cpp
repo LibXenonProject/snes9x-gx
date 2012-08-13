@@ -113,11 +113,11 @@ GuiFileBrowser::GuiFileBrowser(int w, int h)
 		fileListBg[i] = new GuiImage(bgFileSelectionEntry);
 		fileListIcon[i] = NULL;
 
-		fileList[i] = new GuiButton(710, 26);
+		fileList[i] = new GuiButton(710, 32);
 		fileList[i]->SetParent(this);
 		fileList[i]->SetLabel(fileListText[i]);
 		fileList[i]->SetImageOver(fileListBg[i]);
-		fileList[i]->SetPosition(2,26*i+3);
+		fileList[i]->SetPosition(2,32*i+3);
 		fileList[i]->SetTrigger(trigA);
 		fileList[i]->SetTrigger(trig2);
 		fileList[i]->SetSoundClick(btnSoundClick);

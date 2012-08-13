@@ -149,14 +149,14 @@ WindowPrompt(const char *title, const char *msg, const char *btn1Label, const ch
 	promptWindow.SetPosition(0, -10);
 	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
 	GuiSound btnSoundClick(button_click_pcm, button_click_pcm_size, SOUND_PCM);
-	GuiImageData btnOutline(button_prompt_png);
-	GuiImageData btnOutlineOver(button_prompt_over_png);
+	GuiImageData btnOutline(button_png);
+	GuiImageData btnOutlineOver(button_over_png);
 
 	GuiImageData dialogBox(dialogue_box_png);
 	GuiImage dialogBoxImg(&dialogBox);
 
 	GuiText titleTxt(title, 26, (GXColor) {
-		70, 70, 10, 255
+		255, 255, 255, 255
 	});
 	titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
 	titleTxt.SetPosition(0, 14);
@@ -347,7 +347,7 @@ static void ProgressWindow(char *title, char *msg) {
 	throbberImg.SetPosition(0, 40);
 
 	GuiText titleTxt(title, 26, (GXColor) {
-		70, 70, 10, 255
+		255, 255, 255, 255
 	});
 	titleTxt.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
 	titleTxt.SetPosition(0, 14);

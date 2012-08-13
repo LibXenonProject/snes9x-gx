@@ -11,7 +11,6 @@
 #include "gui.h"
 #include <debug.h>
 
-
 /**
  * Constructor for the GuiButton class.
  */
@@ -196,6 +195,25 @@ void GuiButton::ResetText() {
 }
 
 void GuiButton::Update(GuiTrigger * t) {
+    if ( state == STATE_SELECTED) // we weren't on the button before!
+    {
+        if (effectsOver && !effects) {
+            // initiate effects
+            effects = effectsOver;
+            effectAmount = effectAmountOver;
+            effectTarget = effectTargetOver;
+        }
+    } else {
+
+        if (effectTarget == effectTargetOver && effectAmount == effectAmountOver) {
+            // initiate effects (in reverse)
+            effects = effectsOver;
+            effectAmount = -effectAmountOver;
+            effectTarget = 100;
+        }
+    }
+    
+    
     if (state == STATE_CLICKED || state == STATE_DISABLED || !t)
         return;
     else if (parentElement && parentElement->GetState() == STATE_DISABLED)
@@ -316,7 +334,10 @@ void GuiButton::Update(GuiTrigger * t) {
             }
         }
     }
-
+    
+     // cursor
+    oldState = state;
+    
     if (updateCB)
         updateCB(this);
 }

@@ -11,16 +11,31 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="710"
-   height="26"
+   height="32"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="bg_game_selection_entry.svg"
-   inkscape:export-filename="/home/cc/xenon/snes9x-gx-xenon/svg/bg_game_selection_entry.png"
+   inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/bg_options_entry.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
      id="defs4">
+    <linearGradient
+       id="linearGradient4707">
+      <stop
+         style="stop-color:#457dce;stop-opacity:0;"
+         offset="0"
+         id="stop4709" />
+      <stop
+         id="stop4711"
+         offset="0.10638298"
+         style="stop-color:#457dce;stop-opacity:0.49635038;" />
+      <stop
+         style="stop-color:#457dce;stop-opacity:1;"
+         offset="1"
+         id="stop4713" />
+    </linearGradient>
     <linearGradient
        id="linearGradient3798">
       <stop
@@ -51,11 +66,11 @@
     <linearGradient
        id="linearGradient3774">
       <stop
-         style="stop-color:#f5ebb0;stop-opacity:0;"
+         style="stop-color:#c7e8ff;stop-opacity:0;"
          offset="0"
          id="stop3776" />
       <stop
-         style="stop-color:#f5ebb0;stop-opacity:1;"
+         style="stop-color:#c7e8ff;stop-opacity:1;"
          offset="1"
          id="stop3778" />
     </linearGradient>
@@ -79,7 +94,7 @@
        x2="720"
        y2="1039.3622"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.98345945,0,0,0.92656984,0.95459098,76.320487)" />
+       gradientTransform="matrix(0.98315872,0,0,1.1490111,1.0628548,-157.87649)" />
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient3782"
@@ -91,14 +106,14 @@
        gradientUnits="userSpaceOnUse" />
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient3798"
+       xlink:href="#linearGradient4707"
        id="linearGradient3796"
        x1="0"
        y1="1039.3622"
        x2="720"
        y2="1039.3622"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.98345945,0,0,0.92656984,0.95459098,76.320487)" />
+       gradientTransform="matrix(0.98315872,0,0,1.1490111,1.0628548,-157.87649)" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -107,17 +122,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.98994949"
-     inkscape:cx="277.30501"
-     inkscape:cy="188.12688"
+     inkscape:zoom="1.979899"
+     inkscape:cx="387.16101"
+     inkscape:cy="107.72189"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1242"
-     inkscape:window-height="811"
-     inkscape:window-x="277"
-     inkscape:window-y="186"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="1920"
+     inkscape:window-height="1127"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -126,7 +141,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -134,13 +149,13 @@
      inkscape:label="Calque 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-1026.3622)">
+     transform="translate(0,-1020.3622)">
     <rect
-       style="fill:url(#linearGradient3780);fill-opacity:1;stroke:url(#linearGradient3796);stroke-width:1.90918195;stroke-miterlimit:4;stroke-dasharray:none"
+       style="fill:url(#linearGradient3780);fill-opacity:1;stroke:url(#linearGradient3796);stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
        id="rect2985"
-       width="708.09082"
-       height="24.090818"
-       x="0.95459098"
-       y="1027.3168" />
+       width="707.87427"
+       height="29.87429"
+       x="1.0628548"
+       y="1021.425" />
   </g>
 </svg>
