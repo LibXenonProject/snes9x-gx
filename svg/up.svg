@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="40"
+   height="40"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="up.svg"
+   inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/scrollbar_arrowup.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3809"
+       id="linearGradient3863"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.62222227,0,0,0.35714285,-27.377778,428.51786)"
+       x1="65"
+       y1="1057.3622"
+       x2="65"
+       y2="937.36218" />
+    <linearGradient
+       id="linearGradient3809">
+      <stop
+         style="stop-color:#3a3a3a;stop-opacity:1;"
+         offset="0"
+         id="stop3811" />
+      <stop
+         id="stop3813"
+         offset="0.625"
+         style="stop-color:#6e6e6e;stop-opacity:1;" />
+      <stop
+         id="stop3815"
+         offset="0.625"
+         style="stop-color:#909090;stop-opacity:1;" />
+      <stop
+         style="stop-color:#b3b3b3;stop-opacity:1;"
+         offset="0.93333334"
+         id="stop3817" />
+      <stop
+         id="stop3819"
+         offset="0.93333334"
+         style="stop-color:#d9d9d9;stop-opacity:0;" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:0;"
+         offset="1"
+         id="stop3821" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="7.0186816"
+     inkscape:cy="117.19174"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1127"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1012.3622)">
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#404040;stroke-width:1.90476190999999995;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3867"
+       width="38.095238"
+       height="38.095238"
+       x="0.95238096"
+       y="1013.3146"
+       ry="4.5697374"
+       inkscape:export-filename="/home/cc/xenon/snes9x-gx/svg/down.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       inkscape:transform-center-y="-3.3321992"
+       inkscape:transform-center-x="0.0011036003"
+       transform="matrix(1.1068913,-0.01774548,0.01844336,1.0650083,-122.74904,930.20742)"
+       d="m 138.01209,107.60844 -10.83813,-0.18232 -10.83814,-0.18233 5.57697,-9.294935 5.57696,-9.294939 5.26117,9.477262 z"
+       inkscape:randomized="0"
+       inkscape:rounded="0"
+       inkscape:flatsided="false"
+       sodipodi:arg2="1.5876171"
+       sodipodi:arg1="0.5404195"
+       sodipodi:r2="6.2582855"
+       sodipodi:r1="12.516571"
+       sodipodi:cy="101.16872"
+       sodipodi:cx="127.27922"
+       sodipodi:sides="3"
+       id="path3871"
+       style="fill:#4c4c4c;fill-opacity:1;stroke:none"
+       sodipodi:type="star"
+       inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/scrollbar_arrowup.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>

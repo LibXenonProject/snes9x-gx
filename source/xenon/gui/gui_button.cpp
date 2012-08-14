@@ -195,6 +195,7 @@ void GuiButton::ResetText() {
 }
 
 void GuiButton::Update(GuiTrigger * t) {
+#if 0
     if ( state == STATE_SELECTED) // we weren't on the button before!
     {
         if (effectsOver && !effects) {
@@ -212,7 +213,7 @@ void GuiButton::Update(GuiTrigger * t) {
             effectTarget = 100;
         }
     }
-    
+#endif
     
     if (state == STATE_CLICKED || state == STATE_DISABLED || !t)
         return;

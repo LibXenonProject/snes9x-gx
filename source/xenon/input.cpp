@@ -27,7 +27,7 @@
 #include "button_mapping.h"
 
 
-
+extern "C" void doScreenCapture();
 extern "C" void enableCapture();
 
 #define MAX_INPUTS 4
@@ -386,6 +386,11 @@ static uint16_t PAD_ButtonsUp(int ictrl) {
 
         if (RELEASED(s2_z)) {
                 btn |= PAD_BUTTON_LSTICK;
+        }
+        
+        if(HELD(start) && HELD(back))
+        {
+            doScreenCapture();            
         }
 
         return btn;

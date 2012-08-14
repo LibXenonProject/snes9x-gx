@@ -9,12 +9,15 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xml:space="default"
-   width="164"
-   height="96"
+   width="104"
+   height="40"
    id="svg3810"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="button_large_over.svg">
+   sodipodi:docname="button_small_over.svg"
+   inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/button_small_over.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <metadata
      id="metadata3819">
     <rdf:RDF>
@@ -23,6 +26,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -38,12 +42,12 @@
      inkscape:window-width="1050"
      inkscape:window-height="647"
      id="namedview3817"
-     showgrid="false"
+     showgrid="true"
      inkscape:zoom="2.3723724"
-     inkscape:cx="52.245179"
+     inkscape:cx="32.845709"
      inkscape:cy="49.25"
-     inkscape:window-x="228"
-     inkscape:window-y="429"
+     inkscape:window-x="365"
+     inkscape:window-y="354"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg3810">
     <inkscape:grid
@@ -137,20 +141,19 @@
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4357"
-       id="linearGradient4347"
-       x1="59.434177"
-       y1="0.35379747"
-       x2="60"
-       y2="98.5"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.99071089,0,0,0.98395511,-0.47677701,-0.4596899)" />
+       id="linearGradient4933"
+       x1="30"
+       y1="0"
+       x2="30"
+       y2="40"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <rect
-     x="2"
-     y="2.0001984"
-     style="fill:url(#linearGradient4347);fill-opacity:1;stroke:#535353;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+     x="1.9999999"
+     y="2"
+     style="fill:url(#linearGradient4933);fill-opacity:1;stroke:#535353;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
      id="rect3035"
-     width="159.9998"
-     height="91.999802"
-     ry="44.277977" />
+     width="100"
+     height="36"
+     ry="17.326202" />
 </svg>

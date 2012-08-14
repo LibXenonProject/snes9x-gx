@@ -10,28 +10,14 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="40"
-   height="358"
+   width="244"
+   height="72"
    id="svg2"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="scrollbar.svg"
-   inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/scrollbar.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   sodipodi:docname="New document 1">
   <defs
      id="defs4">
-    <linearGradient
-       id="linearGradient4448">
-      <stop
-         id="stop4450"
-         offset="0"
-         style="stop-color:#a4a4a4;stop-opacity:1;" />
-      <stop
-         style="stop-color:#ffffff;stop-opacity:1;"
-         offset="1"
-         id="stop4452" />
-    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient3873"
@@ -58,20 +44,11 @@
        x2="60"
        y1="1057.3622"
        x1="60"
-       gradientTransform="matrix(1.0011287,0,0,1,48.740615,-29.294367)"
+       gradientTransform="matrix(0.5452576,0,0,0.25275307,-0.27539787,786.37446)"
        gradientUnits="userSpaceOnUse"
-       id="linearGradient3913"
-       xlink:href="#linearGradient4448"
+       id="linearGradient3042"
+       xlink:href="#linearGradient3873"
        inkscape:collect="always" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4448"
-       id="linearGradient4446"
-       x1="20"
-       y1="1052.3622"
-       x2="20"
-       y2="627.36218"
-       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -81,19 +58,23 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="-37.334952"
-     inkscape:cy="208.78197"
+     inkscape:cx="105.78248"
+     inkscape:cy="74.834519"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1127"
-     inkscape:window-x="0"
-     inkscape:window-y="24"
-     inkscape:window-maximized="1">
+     inkscape:window-width="944"
+     inkscape:window-height="798"
+     inkscape:window-x="166"
+     inkscape:window-y="167"
+     inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
-       id="grid4454" />
+       id="grid3061"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">
@@ -103,21 +84,43 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Calque 1"
+     inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-694.36218)">
+     transform="translate(0,-980.36218)">
+    <image
+       y="857.1236"
+       x="-39.395943"
+       id="image2993"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPQAAABICAYAAADBJ9jwAAAABHNCSVQICAgIfAhkiAAAAgtJREFU
+eJzt0z1qFAEAR/E3myButcUWE8gRBCMErIQNWtqmimDjDVIlGCwESarcxjLiYicsuMrmBgtTbGFA
+BnEzjE0MduZDGP3zfid4zSvqYcmFEbALbALrSPrXzYEJcNxfVGOA4mLoPeCwwzBJt7PfX1RHRT0s
+R8AJsLK69ZjVVy8p7t/rOk7SH7SfZ5y/fsP5+3cADbBV1MPyA/BoZWOTOydvuy2UdG0/njylmU4A
+xkU9LL8Cg7vTTxTrax2nSbqudl7xfeMBwFkPGADOLP2nfnt30OsyRNLf5dBSEIeWgji0FMShpSAO
+LQVxaCmIQ0tBHFoK4tBSEIeWgji0FMShpSAOLQVxaCmIQ0tBHFoK4tBSEIeWgji0FMShpSAOLQVx
+aCmIQ0tBHFoK4tBSEIeWgji0FMShpSAOLQVxaCmIQ0tBHFoK4tBSEIeWgji0FMShpSAOLQVxaCmI
+Q0tBHFoK4tBSEIeWgji0FMShpSAOLQVxaCmIQ0tBHFoK4tBSEIeWgji0FMShpSAOLQVxaCmIQ0tB
+HFoK4tBSEIeWgji0FMShpSA94AygnVcdp0i6iba6fPdbD/gCsHz+orMgSTe3fHb57qQHHABNM52w
+3N6hnZ12VybpytrZKcvtHZrpBKABDop6WALsAYddxkm6lf3+ojr6NTTACNgFHgJrnWVJuqoK+Agc
+9xfVGOAno/1Us7mn2+AAAAAASUVORK5CYII=
+"
+       height="72"
+       width="244" />
     <rect
-       style="opacity:1;fill:url(#linearGradient4446);fill-opacity:1;stroke:none;stroke-opacity:1"
-       id="rect2996"
-       width="22"
-       height="358"
-       x="10"
-       y="694.36212" />
+       style="fill:url(#linearGradient3042);fill-opacity:1;stroke:#636363;stroke-opacity:1;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect3929"
+       width="244"
+       height="72"
+       x="0"
+       y="980.36218"
+       ry="5.3336062"
+       inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/dialogue_box.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
 </svg>
