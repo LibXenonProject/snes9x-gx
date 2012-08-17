@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="button_prompt_over.svg"
-   inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/button_prompt_over.png"
+   inkscape:export-filename="/home/ced/xenon/snes9x-gx/source/xenon/images/button_prompt_over.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -44,10 +44,10 @@
      id="namedview3817"
      showgrid="true"
      inkscape:zoom="2.3723724"
-     inkscape:cx="92.614833"
+     inkscape:cx="96.204564"
      inkscape:cy="49.25"
-     inkscape:window-x="293"
-     inkscape:window-y="502"
+     inkscape:window-x="319"
+     inkscape:window-y="237"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg3810">
     <inkscape:grid
@@ -60,6 +60,21 @@
   </sodipodi:namedview>
   <defs
      id="defs">
+    <linearGradient
+       x1="0"
+       y1="0"
+       x2="0"
+       y2="1"
+       id="linearGradient3767">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop3769" />
+      <stop
+         style="stop-color:#8b8b8b;stop-opacity:1;"
+         offset="1"
+         id="stop3771" />
+    </linearGradient>
     <linearGradient
        id="linearGradient4357"
        y2="1"
@@ -140,7 +155,7 @@
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient4357"
+       xlink:href="#linearGradient3767"
        id="linearGradient3780"
        x1="105"
        y1="2"
@@ -151,7 +166,7 @@
   <rect
      x="1.9999999"
      y="1.9999995"
-     style="fill:url(#linearGradient3780);fill-opacity:1;stroke:#535353;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
+     style="fill:url(#linearGradient3780);fill-opacity:1.0;stroke:#535353;stroke-width:4;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;display:inline"
      id="rect3035"
      width="192"
      height="48"

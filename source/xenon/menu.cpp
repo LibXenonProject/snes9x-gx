@@ -975,6 +975,12 @@ static int MenuGameSelection() {
 	mainWindow->Append(&titleTxt);
 	mainWindow->Append(&gameBrowser);
 	mainWindow->Append(&buttonWindow);
+	
+	mainWindow->SetState(STATE_DEFAULT);
+	
+	
+	printf("mainWindow size : %d\n",mainWindow->GetSize());
+
 	ResumeGui();
 
 	// populate initial directory listing
@@ -1404,7 +1410,7 @@ static int MenuGame() {
 				gameScreenImg = new GuiImage(screenwidth, screenheight, (GXColor) {
 					175, 200, 215, 255
 				});
-				gameScreenImg->ColorStripe(10);
+				// gameScreenImg->ColorStripe(10);
 				mainWindow->Insert(gameScreenImg, 0);
 				ResumeGui();
 #ifndef NO_SOUND
@@ -3653,12 +3659,12 @@ static int MenuSettingsNetwork() {
 	sprintf(options.name[i++], "SMB Share Name");
 	sprintf(options.name[i++], "SMB Share Username");
 	sprintf(options.name[i++], "SMB Share Password");
-	
+#ifdef NETPLAY_SUPPORT
 	sprintf(options.name[i++], "NetPlay");
 	sprintf(options.name[i++], "NetPlay Server");
 	sprintf(options.name[i++], "NetPlay Server Name");
 	//sprintf(options.name[i++], "NetPlay Server Port");
-	
+#endif
 	options.length = i;
 
 	for (i = 0; i < options.length; i++)
@@ -3826,11 +3832,11 @@ MainMenu(int menu) {
 	btnLogo->SetTrigger(trigA);
 	btnLogo->SetTrigger(trig2);
 	btnLogo->SetUpdateCallback(WindowCredits);
-
+	
 	mainWindow->Append(bgTopImg);
 	mainWindow->Append(bgBottomImg);
 	mainWindow->Append(btnLogo);
-
+	
 	if (currentMenu == MENU_GAMESELECTION)
 		ResumeGui();
 

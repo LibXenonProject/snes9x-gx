@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="bg_game_selection_entry.svg"
-   inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/bg_options_entry.png"
+   inkscape:export-filename="/home/ced/xenon/snes9x-gx/source/xenon/images/bg_options_entry.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -24,15 +24,15 @@
     <linearGradient
        id="linearGradient4707">
       <stop
-         style="stop-color:#457dce;stop-opacity:0;"
+         style="stop-color:#898989;stop-opacity:0;"
          offset="0"
          id="stop4709" />
       <stop
          id="stop4711"
          offset="0.10638298"
-         style="stop-color:#457dce;stop-opacity:0.49635038;" />
+         style="stop-color:#898989;stop-opacity:0.49635038;" />
       <stop
-         style="stop-color:#457dce;stop-opacity:1;"
+         style="stop-color:#898989;stop-opacity:1;"
          offset="1"
          id="stop4713" />
     </linearGradient>
@@ -66,11 +66,11 @@
     <linearGradient
        id="linearGradient3774">
       <stop
-         style="stop-color:#c7e8ff;stop-opacity:0;"
+         style="stop-color:#e3e3e3;stop-opacity:0;"
          offset="0"
          id="stop3776" />
       <stop
-         style="stop-color:#c7e8ff;stop-opacity:1;"
+         style="stop-color:#e3e3e3;stop-opacity:1;"
          offset="1"
          id="stop3778" />
     </linearGradient>
@@ -123,15 +123,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="387.16101"
+     inkscape:cx="207.9548"
      inkscape:cy="107.72189"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1127"
+     inkscape:window-height="1149"
      inkscape:window-x="0"
-     inkscape:window-y="24"
+     inkscape:window-y="0"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">

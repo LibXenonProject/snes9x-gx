@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="button_short_over.svg"
-   inkscape:export-filename="/home/cc/xenon/snes9x-gx/source/xenon/images/button_short_over.png"
+   inkscape:export-filename="/home/ced/xenon/snes9x-gx/source/xenon/images/button_short_over.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -44,10 +44,10 @@
      id="namedview3817"
      showgrid="true"
      inkscape:zoom="2.3723724"
-     inkscape:cx="46.442134"
+     inkscape:cx="-31.960397"
      inkscape:cy="49.25"
      inkscape:window-x="293"
-     inkscape:window-y="502"
+     inkscape:window-y="498"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg3810">
     <inkscape:grid
@@ -73,7 +73,7 @@
       <stop
          id="stop4361"
          offset="1"
-         style="stop-color:#d1d1d1;stop-opacity:1;" />
+         style="stop-color:#8b8b8b;stop-opacity:1;" />
     </linearGradient>
     <linearGradient
        x1="0"

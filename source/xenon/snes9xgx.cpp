@@ -112,12 +112,10 @@ extern "C" void smbTest();
 #include <console/console.h>
 
 int main(int argc, char *argv[])
-{
+{	
 	xenon_make_it_faster(XENON_SPEED_FULL);
 	threading_init();
 	InitVideo();
-
-	//console_init();
 	
 	//gdb_init();	
 	
