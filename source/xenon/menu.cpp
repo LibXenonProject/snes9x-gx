@@ -1408,7 +1408,7 @@ static int MenuGame() {
 				//				gameScreenPng = NULL;
 
 				gameScreenImg = new GuiImage(screenwidth, screenheight, (GXColor) {
-					175, 200, 215, 255
+					255, 255, 255, 255
 				});
 				// gameScreenImg->ColorStripe(10);
 				mainWindow->Insert(gameScreenImg, 0);
@@ -3797,9 +3797,9 @@ MainMenu(int menu) {
 
 	if (menu == MENU_GAME) {
 		gameScreenImg->SetAlpha(192);
-		//                gameScreenImg->ColorStripe(30);
+		// gameScreenImg->ColorStripe(30);
 	} else {
-		//                gameScreenImg->ColorStripe(10);
+		// gameScreenImg->ColorStripe(10);
 	}
 
 	mainWindow->Append(gameScreenImg);

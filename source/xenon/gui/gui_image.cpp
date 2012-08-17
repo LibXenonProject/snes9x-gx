@@ -70,6 +70,7 @@ GuiImage::GuiImage(int w, int h, GXColor c) {
 	image = Xe_CreateTexture(g_pVideoDevice, w, h, 1, (XE_FMT_8888 | XE_FMT_ARGB), 0);
 	width = w;
 	height = h;
+	imgType == IMAGE_COLOR;
 
 	u8 * buf = (u8*) Xe_Surface_LockRect(g_pVideoDevice, image, 0, 0, 0, 0, XE_LOCK_WRITE);
 
